@@ -1,4 +1,4 @@
-﻿import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import Intro from '../views/Intro.vue'
 import Game from '../views/Game.vue'
 import MapView from '../views/MapView.vue'
@@ -34,7 +34,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // 让路由基路径跟随 Vite base，适配 GitHub Pages 项目页 /xiao/
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
 
