@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大明总造办：规划与营缮</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "KaiTi", serif;
+            background-color: #2b1d14;
+            /* 与同目录 ph.jpg 同源（由 ancient_buildings/game2/ph.jpg 提供） */
+            background-image:
+                linear-gradient(165deg, rgba(43, 29, 20, 0.42) 0%, rgba(30, 22, 16, 0.5) 100%),
+                url('ph.jpg');
+            background-position: center, center;
+            background-size: cover, cover;
+            background-repeat: no-repeat, no-repeat;
+            background-attachment: fixed, fixed;
+            color: #eaddc5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        h1 {
+            color: #d4a574;
+            font-size: 36px;
+            letter-spacing: 5px;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #a0522d;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 主菜单样式 */
+        #main-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 25px;
+            width: 100%;
+        }
+        .menu-title {
+            font-size: 28px;
+            color: #d4a574;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .menu-btn {
+            width: 320px;
+            padding: 20px 40px;
+            font-size: 22px;
+            font-family: inherit;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(to bottom, #a0522d, #5d4037);
+            border: 3px solid #d4a574;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .menu-btn:hover:not(:disabled) {
+            filter: brightness(1.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.6);
+        }
+        .menu-btn:disabled {
+            filter: grayscale(1);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        /* 开场页面样式 */
+        #intro-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                linear-gradient(rgba(24, 18, 14, 0.5), rgba(18, 14, 12, 0.58)),
+                url('ph.jpg') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #ffffff;
+            font-family: "Microsoft YaHei", "KaiTi", serif;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        #intro-screen .menu-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 6px;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.9);
+            color: #f4e8d3;
+            text-align: center;
+        }
+        #intro-screen .subtitle {
+            font-size: 22px;
+            color: #d4a574;
+            margin-bottom: 40px;
+            letter-spacing: 3px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        #intro-screen .story-container {
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px solid #8b5a2b;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+        #intro-screen .story-text {
+            font-size: 19px;
+            line-height: 2.2;
+            text-align: justify;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+            color: #f4e8d3;
+        }
+        #intro-screen .story-text strong {
+            color: #ffd700;
+            font-size: 20px;
+        }
+        #intro-screen .start-btn-group {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        #intro-screen .menu-btn {
+            width: 260px;
+            padding: 18px 0;
+            font-size: 22px;
+            font-family: inherit;
+            font-weight: bold;
+            color: #ffffff;
+            background: linear-gradient(to bottom, #be8b5a, #855325);
+            border: 2px solid #f4e8d3;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+        #intro-screen .menu-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            filter: brightness(1.15);
+            box-shadow: 0 10px 25px rgba(212, 165, 116, 0.4);
+        }
+        #intro-screen .menu-btn.secondary {
+            background: linear-gradient(to bottom, #4a7c4a, #2d502d);
+        }
+        .locked::after {
+            content: ' 🔒';
+        }
+
+        /* 攻略手册按钮 */
+        .strategy-btn {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 180px;
+            background: linear-gradient(to bottom, #8b5a2b, #5d4037);
+            border: 3px solid #d4a574;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none; /* 默认隐藏，进入主菜单后显示 */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+        }
+        .strategy-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 8px 30px rgba(212, 165, 116, 0.6);
+        }
+        .strategy-btn span {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 20px;
+            font-weight: bold;
+            color: #f4e8d3;
+            letter-spacing: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        }
+        .strategy-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        /* 关卡容器 */
+        #level-container {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            flex-direction: column;
+            align-items: center;
+        }
+        .level-header {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px 30px;
+            border: 2px solid #8b5a2b;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        .level-header h2 {
+            color: #d4a574;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .level-instruction {
+            font-size: 16px;
+            color: #a0522d;
+            margin-top: 8px;
+        }
+
+        /* 状态与提示区 (仅终极关卡显示) */
+        #status-bar {
+            display: none; /* 初始隐藏 */
+            width: 100%;
+            max-width: 800px;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border: 2px solid #8b5a2b;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .fail-text { color: #d32f2f; font-weight: bold; }
+        .progress-info { color: #ffd700; font-weight: bold; }
+
+        /* 教学关卡特殊样式 */
+        .teaching-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            grid-template-rows: repeat(3, 120px);
+            gap: 8px;
+            background: #5d4037;
+            padding: 12px;
+            border: 6px double #d4a574;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            margin-bottom: 20px;
+        }
+        .t-cell {
+            background: #8b5a2b;
+            border: 2px solid #4a3022;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .t-cell:hover { background: #a0522d; }
+        .t-cell.selected { border: 4px solid #ffd700; box-shadow: 0 0 15px #ffd700; }
+        .t-marker {
+            position: absolute;
+            font-size: 16px;
+            color: rgba(234, 221, 197, 0.15);
+            pointer-events: none;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        .building-label {
+            padding: 10px 20px;
+            background: #8b5a2b;
+            border: 2px solid #5d4037;
+            border-radius: 4px;
+            cursor: pointer; /* 更改为 pointer */
+            font-weight: bold;
+            margin: 5px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        .building-label:hover { background: #a0522d; }
+        .building-label.selected { border-color: #ffd700; box-shadow: 0 0 10px #ffd700; background: #a0522d;}
+
+        .color-sample {
+            width: 80px;
+            height: 60px;
+            border: 3px solid #5d4037;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
+            color: #fff;
+            margin: 5px;
+        }
+        .color-sample:hover { transform: scale(1.1); }
+        .color-sample.selected { border: 4px solid #ffd700; box-shadow: 0 0 15px #ffd700; }
+        .yellow-tile { background: linear-gradient(135deg, #ffd700, #d4a574); }
+        .green-tile { background: linear-gradient(135deg, #20B2AA, #008B8B); }
+        .grey-tile { background: linear-gradient(135deg, #808080, #505050); }
+
+        /* ========== 第二关：令牌与批红印章样式 ========== */
+        .token-box { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        .token {
+            width: 65px; height: 140px;
+            border: 3px solid #4a3022;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+            writing-mode: vertical-rl; /* 文字竖排 */
+            text-align: center;
+            letter-spacing: 5px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.6);
+            transition: all 0.2s;
+            position: relative;
+        }
+        /* 令牌顶部的红绳孔 */
+        .token::before {
+            content: ''; position: absolute; top: 10px; right: 25px;
+            width: 10px; height: 10px; background: #d32f2f; border-radius: 50%;
+            box-shadow: inset 0 0 3px #000;
+        }
+        .token:hover { transform: translateY(-5px); }
+        .token.selected { border-color: #ffd700; box-shadow: 0 0 20px #ffd700; transform: translateY(-5px); }
+        
+        .t-yellow { background: linear-gradient(135deg, #b8860b, #d4a574); }
+        .t-green { background: linear-gradient(135deg, #006400, #2e8b57); }
+        .t-grey { background: linear-gradient(135deg, #505050, #808080); }
+
+        .blueprint-list { flex-grow: 1; max-width: 450px; display: flex; flex-direction: column; gap: 12px; }
+        .blueprint-item {
+            background: #eaddc5;
+            border: 2px solid #8b5a2b;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: #5d4037;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .blueprint-item:hover { background: #f4e8d3; border-color: #d4a574; }
+        
+        /* "批"字印章动画 */
+        .stamp-pi {
+            color: #d32f2f;
+            border: 3px solid #d32f2f;
+            border-radius: 50%;
+            width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: 900;
+            font-family: "KaiTi", serif;
+            position: absolute; right: 20px;
+            opacity: 0; transform: scale(3) rotate(0deg);
+            pointer-events: none;
+        }
+        .stamp-pi.active {
+            animation: stampAnimation 0.4s ease-out forwards;
+        }
+        @keyframes stampAnimation {
+            0% { transform: scale(3) rotate(0deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1) rotate(-20deg); opacity: 1; } /* 最终带一点帅气的倾斜 */
+        }
+
+        .roof-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .roof-card {
+            background: #8b5a2b;
+            border: 3px solid #5d4037;
+            border-radius: 8px;
+            padding: 15px;
+            width: 200px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .roof-card:hover { background: #a0522d; transform: translateY(-5px); }
+        .roof-card.selected { border: 4px solid #ffd700; box-shadow: 0 0 20px #ffd700; }
+        /* 增加顺序列目标识 */
+        .roof-card.selected::before {
+            content: attr(data-rank);
+            position: absolute;
+            top: -10px; right: -10px;
+            background: #d32f2f;
+            color: #fff;
+            border-radius: 50%;
+            width: 28px; height: 28px;
+            line-height: 28px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            border: 2px solid #fff;
+        }
+
+        .roof-img {
+            width: 100%;
+            height: 120px;
+            background: #eaddc5;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            overflow: hidden;
+        }
+        .roof-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .roof-name { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #f4e8d3; /* 改为更亮的米白色 */
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8); /* 增加阴影提高可读性 */
+        }
+        .roof-desc { 
+            font-size: 14px; 
+            color: #eaddc5; /* 改为更亮的浅色 */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6); /* 增加阴影 */
+        }
+
+        /* 游戏主体布局（终极关卡） */
+        #game-container {
+            display: none;
+            gap: 40px;
+            max-width: 900px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* 九宫格棋盘 */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(3, 140px);
+            grid-template-rows: repeat(3, 140px);
+            gap: 10px;
+            background: #5d4037;
+            padding: 15px;
+            border: 6px double #d4a574;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .cell {
+            background: #8b5a2b;
+            border: 2px solid #4a3022;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .cell:hover { background: #a0522d; }
+        .cell.selected { border: 4px solid #ffd700; box-shadow: 0 0 15px #ffd700; }
+
+        .marker {
+            position: absolute;
+            font-size: 18px;
+            color: rgba(234, 221, 197, 0.15);
+            pointer-events: none;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* 放置后的内容 */
+        .b-name { font-size: 22px; font-weight: bold; color: #fff; margin-bottom: 5px; text-shadow: 1px 1px 2px #000; }
+        .b-roof { font-size: 14px; color: #d4a574; }
+        .b-color { font-size: 14px; color: #d4a574; }
+
+        /* 营缮控制台 */
+        #control-panel {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border: 2px solid #8b5a2b;
+            border-radius: 8px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #control-panel h3 { color: #d4a574; border-bottom: 1px solid #8b5a2b; padding-bottom: 10px; text-align: center; }
+        select {
+            width: 100%;
+            padding: 10px;
+            background: #eaddc5;
+            color: #5d4037;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid #8b5a2b;
+            border-radius: 4px;
+        }
+        .btn {
+            padding: 12px;
+            font-size: 18px;
+            font-family: inherit;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(to bottom, #a0522d, #5d4037);
+            border: 2px solid #d4a574;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .btn:hover { filter: brightness(1.2); }
+        .btn-submit { background: linear-gradient(to bottom, #d32f2f, #8b0000); margin-top: 20px; font-size: 20px; }
+        .btn-hint { background: #4a7c4a; display: none; }
+        .back-btn {
+            padding: 10px 25px;
+            font-size: 16px;
+            font-family: inherit;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(to bottom, #5d4037, #3a2015);
+            border: 2px solid #8b5a2b;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+            margin-top: 20px;
+            text-align: center;
+            display: inline-block;
+        }
+        .back-btn:hover { background: #8b5a2b; }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #eaddc5;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            border: 8px double #8b5a2b;
+            max-width: 500px;
+            color: #5d4037;
+        }
+        .modal-content h2 { font-size: 30px; margin-bottom: 15px; }
+        .modal-content p { font-size: 20px; line-height: 1.6; margin-bottom: 25px; font-weight: bold; }
+        .fatal-error { color: #d32f2f; }
+        .success { color: #4a7c4a; }
+        .easter-egg { color: #d4a574; text-shadow: 1px 1px 2px #000; background: #5d4037; padding: 15px; border-radius: 8px; display: inline-block; margin-top:10px;}
+
+        /* 典籍卷轴样式 */
+        #knowledge-book {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: url('https://www.transparenttextures.com/patterns/rice-paper.png'), #f4e8d3;
+            padding: 40px;
+            border-radius: 15px;
+            border: 8px double #8b5a2b;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 3000;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+            color: #5d4037;
+        }
+        #knowledge-book h3 {
+            color: #8b5a2b;
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #8b5a2b;
+            padding-bottom: 10px;
+        }
+        #knowledge-book p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .book-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #8b5a2b;
+            font-weight: bold;
+        }
+        .book-close-btn:hover { color: #d32f2f; }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2999;
+        }
+
+        /* 攻略手册弹窗 */
+        #strategy-book {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: url('https://www.transparenttextures.com/patterns/rice-paper.png'), #f4e8d3;
+            padding: 40px;
+            border-radius: 15px;
+            border: 8px double #8b5a2b;
+            z-index: 3000;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+            color: #5d4037;
+        }
+        #strategy-book h2 {
+            color: #8b5a2b;
+            font-size: 28px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #8b5a2b;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        #strategy-book h3 {
+            color: #a0522d;
+            font-size: 22px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid #8b5a2b;
+            padding-left: 10px;
+        }
+        #strategy-book h4 {
+            color: #5d4037;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        #strategy-book p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            text-indent: 2em;
+        }
+        #strategy-book .classical-text {
+            background: rgba(139, 90, 43, 0.1);
+            padding: 15px;
+            border-left: 3px solid #8b5a2b;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        #strategy-book .explanation {
+            background: rgba(74, 124, 74, 0.1);
+            padding: 15px;
+            border-left: 3px solid #4a7c4a;
+            margin-bottom: 15px;
+        }
+        #strategy-book .example {
+            background: rgba(212, 165, 116, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        #strategy-book .example-title {
+            font-weight: bold;
+            color: #8b5a2b;
+            margin-bottom: 10px;
+        }
+        #strategy-book ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        #strategy-book li {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+        .strategy-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 36px;
+            cursor: pointer;
+            color: #8b5a2b;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .strategy-close-btn:hover { color: #d32f2f; transform: scale(1.2); }
+
+        /* 第三关放大镜样式 */
+        .magnifier-btn {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(to bottom, #4a7c4a, #2d502d);
+            border: 3px solid #d4a574;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+            transition: all 0.3s;
+            z-index: 200;
+            animation: pulse 2s infinite;
+        }
+        .magnifier-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(74, 124, 74, 0.6);
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .magnifier-text {
+            position: fixed;
+            right: 120px;
+            bottom: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #f4e8d3;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #d4a574;
+            font-size: 16px;
+            font-weight: bold;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        #science-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1000px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: url('https://www.transparenttextures.com/patterns/rice-paper.png'), #f4e8d3;
+            padding: 40px;
+            border-radius: 15px;
+            border: 8px double #8b5a2b;
+            z-index: 3001;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+        }
+        #science-popup h3 {
+            color: #8b5a2b;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 3px solid #8b5a2b;
+            padding-bottom: 10px;
+        }
+        .science-images {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .science-item {
+            text-align: center;
+        }
+        .science-item img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 8px;
+            border: 4px solid #8b5a2b;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+        .science-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 36px;
+            cursor: pointer;
+            color: #8b5a2b;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .science-close-btn:hover { color: #d32f2f; transform: scale(1.2); }
+
+    </style>
+</head>
+<body>
+
+<!-- 攻略手册悬浮按钮 -->
+<div class="strategy-btn" id="strategy-btn">
+    <div class="strategy-icon">📜</div>
+    <span>攻略手册</span>
+</div>
+
+<!-- 开场页面 -->
+<div id="intro-screen">
+    <h1 class="menu-title">大明总造办：规划与营缮</h1>
+    <p class="subtitle">礼制即规则，细节即陷阱。逾越规制者，当斩！</p>
+    
+    <div class="story-container">
+        <div class="story-text">
+            <p><strong>大明永乐年间</strong>，帝都长安因战火损毁严重，成祖朱棣下旨重启营缮工程，欲以《考工记》的空间智慧为骨，以大明律例的等级规制为魂，再造一座规制森严、气象恢弘的帝都，彰显皇家威仪与国之根基。</p>
+            
+            <p>作为钦点的<strong>总造办主事</strong>，你需凭残缺的《大明营缮考》典籍，破解帝都布局与建筑规制的奥秘——而这份知识卡片，便是你规避<strong>"逾制"之罪</strong>、完成营缮使命的核心指南。</p>
+            
+            <p><strong>注意：</strong>若营造规制有误（如亲王用黄色瓦、市场建庑殿顶），将被御史弹劾为<strong>"僭越"</strong>，轻则贬谪，重则处斩。请先修习教学关卡，熟稔规制后再行营建。</p>
+        </div>
+    </div>
+
+    <div class="start-btn-group">
+        <button class="menu-btn" onclick="enterGame()">🏮 开始科举之路</button>
+        <button class="menu-btn secondary" onclick="viewStrategyDirectly()">📚 先阅攻略手册</button>
+    </div>
+</div>
+
+<h1>大明总造办：规划与营缮</h1>
+<p class="subtitle">礼制即规则，细节即陷阱。逾越规制者，当斩！</p>
+
+<div id="status-bar">
+    <span>当前状态：<span id="current-step">待定中心</span></span>
+    <span class="fail-text">逾制记录：<span id="fail-count">0</span> 次</span>
+</div>
+
+<div id="main-menu">
+    <div class="menu-title">
+        📜 钦天监科举 📜<br>
+        <span style="font-size: 18px; color: #a0522d;">循序渐进，方成传世大匠</span>
+    </div>
+    <button class="menu-btn" onclick="startTeachingLevel(1)">第一关：《考工记》方位篇</button>
+    <button class="menu-btn" id="btn-level2" onclick="startTeachingLevel(2)" disabled class="locked">第二关：瓦色等级篇 🔒</button>
+    <button class="menu-btn" id="btn-level3" onclick="startTeachingLevel(3)" disabled class="locked">第三关：屋顶形制篇 🔒</button>
+    <button class="menu-btn" id="btn-final" onclick="startFinalLevel()" disabled class="locked" style="background: linear-gradient(to bottom, #d32f2f, #8b0000);">终极关卡：帝都规划与营缮 🔒</button>
+    <button class="menu-btn" onclick="showKnowledgeBook()" style="background: linear-gradient(to bottom, #4a7c4a, #2d502d);">📖 大明营缮考（已解锁）</button>
+</div>
+
+<div id="level-container">
+    <div class="level-header">
+        <h2 id="level-title">第一关：《考工记》方位篇</h2>
+        <p class="level-instruction" id="level-instruction">理解"左祖右社，面朝后市"的方位规则</p>
+    </div>
+
+    <div id="level-1-content" style="display: none; width: 100%;">
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <div class="teaching-grid" id="grid-1">
+                <div class="t-cell" data-idx="0"><span class="t-marker"></span></div>
+                <div class="t-cell" data-idx="1"><span class="t-marker">玄武纹</span></div>
+                <div class="t-cell" data-idx="2"><span class="t-marker"></span></div>
+                <div class="t-cell" data-idx="3"><span class="t-marker">白虎纹</span></div>
+                <div class="t-cell" data-idx="4"><span class="t-marker">朱雀玄武纹</span><div style="font-size: 18px; color: #ffd700; font-weight: bold;">皇宫</div></div>
+                <div class="t-cell" data-idx="5"><span class="t-marker">青龙纹</span></div>
+                <div class="t-cell" data-idx="6"><span class="t-marker"></span></div>
+                <div class="t-cell" data-idx="7"><span class="t-marker">朱雀纹</span></div>
+                <div class="t-cell" data-idx="8"><span class="t-marker"></span></div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="margin-bottom: 15px; font-size: 16px;">💡 提示：皇帝面南而坐，左手为东，右手为西</p>
+                <div id="building-labels">
+                    <div class="building-label" data-building="太庙">🏛️ 太庙（皇家祖庙）</div>
+                    <div class="building-label" data-building="社稷坛">⛰️ 社稷坛（国之根本）</div>
+                    <div class="building-label" data-building="市场">🏪 市场（平民商贾）</div>
+                    <div class="building-label" data-building="南城门">🚪 南城门（防御礼仪）</div>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px; color: #a0522d;">📌 请先点击选中上方建筑标签，再点击九宫格将其放置</p>
+            </div>
+            <button class="btn btn-submit" onclick="checkLevel1()" style="width: 250px;">呈交答卷</button>
+        </div>
+    </div>
+
+    <div id="level-2-content" style="display: none; width: 100%;">
+        <div style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+            <div class="token-box">
+                <h3 style="color: #d4a574; margin-bottom: 5px; font-size: 18px;">工部令牌</h3>
+                <div class="token t-yellow" onclick="selectToken('明黄瓦', this)">明黄</div>
+                <div class="token t-green" onclick="selectToken('孔雀绿瓦', this)">孔雀绿</div>
+                <div class="token t-grey" onclick="selectToken('青灰瓦', this)">青灰</div>
+            </div>
+            
+            <div class="blueprint-list">
+                <h3 style="color: #d4a574; margin-bottom: 5px; text-align: center; font-size: 18px;">营缮案卷（点击批复）</h3>
+                <div id="blueprint-tasks" style="display: flex; flex-direction: column; gap: 12px;">
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+            <p style="color: #a0522d; font-size: 16px;">玩法：先点击左侧拾取令牌，再点击右侧案卷进行批复。判错则当斩！</p>
+        </div>
+    </div>
+
+    <div id="level-3-content" style="display: none; width: 100%;">
+        <!-- 第一步：排列屋顶等级 -->
+        <div id="step1-container" style="text-align: center;">
+            <h3 style="color: #d4a574; margin-bottom: 15px;">第一步：按等级从高到低点击屋顶卡片</h3>
+            <div class="roof-display" id="roof-rank-container">
+                <div class="roof-card" data-roof="庑殿顶" onclick="selectRoofCard(this)">
+                    <div class="roof-img">
+                        <img src="ph1.jpg" alt="庑殿顶">
+                    </div>
+                    <div class="roof-name">庑殿顶</div>
+                    <div class="roof-desc">四坡五脊，最高等级</div>
+                </div>
+                <div class="roof-card" data-roof="歇山顶" onclick="selectRoofCard(this)">
+                    <div class="roof-img">
+                        <img src="ph2.jpg" alt="歇山顶">
+                    </div>
+                    <div class="roof-name">歇山顶</div>
+                    <div class="roof-desc">九脊，次高等级</div>
+                </div>
+                <div class="roof-card" data-roof="硬山/悬山顶" onclick="selectRoofCard(this)">
+                    <div class="roof-img">
+                        <img src="ph3.jpg" alt="硬山/悬山顶">
+                    </div>
+                    <div class="roof-name">硬山/悬山顶</div>
+                    <div class="roof-desc">两坡，平民可用</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二步：批复案卷（完成后显示） -->
+        <div id="step2-container" style="display: none; margin-top: 30px;">
+            <div style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap;">
+                <div class="token-box">
+                    <h3 style="color: #d4a574; margin-bottom: 5px; font-size: 18px;">工部令牌</h3>
+                    <div class="token t-yellow" onclick="selectToken3('庑殿顶', this)">庑殿顶</div>
+                    <div class="token t-green" onclick="selectToken3('歇山顶', this)">歇山顶</div>
+                    <div class="token t-grey" onclick="selectToken3('硬山/悬山顶', this)">硬山/悬山</div>
+                </div>
+                
+                <div class="blueprint-list">
+                    <h3 style="color: #d4a574; margin-bottom: 5px; text-align: center; font-size: 18px;">营缮案卷（点击批复）</h3>
+                    <div id="blueprint-roof-tasks" style="display: flex; flex-direction: column; gap: 12px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 科普小博士放大镜按钮 -->
+        <div class="magnifier-btn" id="magnifier-btn" onclick="showSciencePopup()" title="科普小博士">
+            🔍
+        </div>
+        <div class="magnifier-text">📚 科普小博士，请点击我<br>祝你顺利通关 ✨</div>
+    </div>
+
+    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+        <button class="back-btn" onclick="backToMenu()">🔙 返回主菜单</button>
+        <button class="back-btn" onclick="quitGame()">🚪 退出游戏</button>
+    </div>
+</div>
+
+<div id="game-container">
+    <div id="grid">
+        <div class="cell" onclick="selectFinalCell(0)"><span class="marker"></span></div>
+        <div class="cell" onclick="selectFinalCell(1)"><span class="marker">玄武纹</span></div>
+        <div class="cell" onclick="selectFinalCell(2)"><span class="marker"></span></div>
+        <div class="cell" onclick="selectFinalCell(3)"><span class="marker">白虎纹</span></div>
+        <div class="cell" onclick="selectFinalCell(4)"><span class="marker">朱雀玄武纹</span></div>
+        <div class="cell" onclick="selectFinalCell(5)"><span class="marker">青龙纹</span></div>
+        <div class="cell" onclick="selectFinalCell(6)"><span class="marker"></span></div>
+        <div class="cell" onclick="selectFinalCell(7)"><span class="marker">朱雀纹</span></div>
+        <div class="cell" onclick="selectFinalCell(8)"><span class="marker"></span></div>
+    </div>
+
+    <div id="control-panel">
+        <h3>工部营缮卷宗</h3>
+        <select id="sel-building">
+            <option value="">-- 选择拟建建筑 --</option>
+            <option value="皇宫">皇宫 (帝王至尊)</option>
+            <option value="太庙">太庙 (皇家祖庙)</option>
+            <option value="社稷坛">社稷坛 (国之根本)</option>
+            <option value="市场">市场 (平民商贾)</option>
+            <option value="南城门">南城门 (防御礼仪)</option>
+        </select>
+        <select id="sel-roof">
+            <option value="">-- 选择屋顶形制 --</option>
+            <option value="庑殿顶">庑殿顶 (四坡五脊)</option>
+            <option value="歇山顶">歇山顶 (九脊)</option>
+            <option value="硬山/悬山顶">硬山/悬山顶 (两坡)</option>
+        </select>
+        <select id="sel-color">
+            <option value="">-- 选择琉璃瓦色 --</option>
+            <option value="明黄瓦">明黄瓦 (帝后专属)</option>
+            <option value="孔雀绿瓦">孔雀绿瓦 (祭祀/亲王)</option>
+            <option value="青灰瓦">青灰瓦 (官民实用)</option>
+        </select>
+        <button class="btn" onclick="placeBuilding()">落下法印 (放置)</button>
+        <button class="btn btn-hint" id="btn-hint" onclick="useHint()">查看《大明营缮考》残页</button>
+        <button class="btn btn-submit" onclick="submitDesign()">呈报先帝圣裁</button>
+        <button class="back-btn" onclick="backToMenu()" style="margin-top: 15px; width: 100%;">🔙 返回主菜单 (放弃当前进度)</button>
+    </div>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h2 id="modal-title">标题</h2>
+        <p id="modal-msg">内容</p>
+        <button class="btn" id="modal-btn">确认</button>
+    </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeKnowledgeBook()"></div>
+<div id="knowledge-book">
+    <span class="book-close-btn" onclick="closeKnowledgeBook()">×</span>
+    <h3>📖 大明营缮考</h3>
+    <div id="book-content">
+        <p style="color: #a0522d; font-style: italic;">尚未解锁任何典籍碎片。请通过教学关卡以解锁知识。</p>
+    </div>
+</div>
+
+<script>
+    // 进入游戏
+    function enterGame() {
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('main-menu').style.display = 'flex';
+        document.querySelector('.strategy-btn').style.display = 'flex';
+    }
+
+    // 直接查看攻略
+    function viewStrategyDirectly() {
+        showStrategyBook();
+    }
+
+    // 显示攻略手册
+    function showStrategyBook() {
+        const overlay = document.getElementById('strategy-overlay');
+        const book = document.getElementById('strategy-book');
+        
+        if (!overlay) {
+            const newOverlay = document.createElement('div');
+            newOverlay.id = 'strategy-overlay';
+            newOverlay.className = 'overlay';
+            newOverlay.onclick = closeStrategyBook;
+            document.body.appendChild(newOverlay);
+        }
+        
+        if (!book) {
+            const newBook = document.createElement('div');
+            newBook.id = 'strategy-book';
+            newBook.innerHTML = `
+                <span class="strategy-close-btn" onclick="closeStrategyBook()">×</span>
+                <h2>📖 攻略手册</h2>
+                <div id="strategy-content"></div>
+            `;
+            document.body.appendChild(newBook);
+        }
+        
+        const content = document.getElementById('strategy-content');
+        content.innerHTML = `
+            <h3>📜 序言：营缮之道</h3>
+            <div class="classical-text">
+                <p><strong>《周礼·考工记》云：「匠人营国，方九里，旁三门。国中九经九纬，经涂九轨。左祖右社，面朝后市。」</strong></p>
+            </div>
+            <div class="explanation">
+                <p><strong>【白话解释】</strong></p>
+                <p>匠人营造都城，方圆九里，每边开三门。城内有九条南北大道、九条东西大道，道路宽度为车轨的九倍。</p>
+                <p>皇宫左侧（东）设太庙，右侧（西）设社稷坛；前方（南）为朝廷办公区，后方（北）为商业市场。</p>
+            </div>
+            <div class="example">
+                <p class="example-title"><strong>【实际案例】北京故宫布局</strong></p>
+                <ul>
+                    <li><strong>太庙</strong>：位于故宫东南侧（今劳动人民文化宫），为皇家祭祖之所</li>
+                    <li><strong>社稷坛</strong>：位于故宫西南侧（今中山公园），为祭祀土地神和谷神之地</li>
+                    <li><strong>前朝</strong>：太和殿、中和殿、保和殿三大殿，处理朝政之处</li>
+                    <li><strong>后市</strong>：原指鼓楼大街一带的商业区</li>
+                </ul>
+            </div>
+
+            <h3>🏛️ 建筑等级制度</h3>
+            <h4>一、屋顶形制等级（从高到低）：</h4>
+            <div class="classical-text">
+                <p><strong>《大明会典》载：「庶民庐舍，不过三间五架，不许用斗拱、歇山、庑殿顶。”</strong></p>
+            </div>
+            <ul>
+                <li><strong>庑殿顶</strong>：四坡五脊，等级最高，仅限<strong>皇宫主殿</strong>使用</li>
+                <li><strong>歇山顶</strong>：九脊，次高等级，用于<strong>城门、亲王宫殿</strong></li>
+                <li><strong>硬山/悬山顶</strong>：两坡，最低等级，<strong>官民通用</strong></li>
+            </ul>
+
+            <h4>二、瓦色等级禁忌：</h4>
+            <div class="classical-text">
+                <p><strong>《明史·舆服志》：「亲王府第，正殿基高六尺，门房全用绿色琉璃瓦。」</strong></p>
+            </div>
+            <ul>
+                <li><strong>明黄琉璃瓦</strong>：帝王专属，仅可用于<strong>皇宫、太庙</strong></li>
+                <li><strong>孔雀绿琉璃瓦</strong>：亲王、祭祀专用，用于<strong>社稷坛、亲王府</strong></li>
+                <li><strong>青灰瓦</strong>：官民通用，用于<strong>市场、民居</strong>等</li>
+            </ul>
+
+            <h3>🎯 通关秘籍</h3>
+            <h4>终极关卡九宫格布局：</h4>
+            <div class="explanation">
+                <p><strong>口诀：「左祖右社，面朝后市，帝王居中，威临天下」</strong></p>
+                <ul>
+                    <li><strong>中央 (5 号位)</strong>：皇宫（坐北朝南，面阳而尊）</li>
+                    <li><strong>东侧 (6 号位)</strong>：太庙（左祖，东方青龙为左）</li>
+                    <li><strong>西侧 (4 号位)</strong>：社稷坛（右社，西方白虎为右）</li>
+                    <li><strong>北侧 (1 号位)</strong>：市场（后市，北方属水，水为财）</li>
+                    <li><strong>南侧 (7 号位)</strong>：南城门（面朝，南方朱雀，向阳之门）</li>
+                </ul>
+            </div>
+
+            <h4>建筑规制速查表：</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                <tr style="background: rgba(139, 90, 43, 0.2);">
+                    <th style="border: 1px solid #8b5a2b; padding: 10px;">建筑</th>
+                    <th style="border: 1px solid #8b5a2b; padding: 10px;">位置</th>
+                    <th style="border: 1px solid #8b5a2b; padding: 10px;">屋顶</th>
+                    <th style="border: 1px solid #8b5a2b; padding: 10px;">瓦色</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">皇宫</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">中央</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">庑殿顶</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">明黄琉璃瓦</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">太庙</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">东（左）</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">歇山顶</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">明黄琉璃瓦</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">社稷坛</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">西（右）</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">歇山顶</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">孔雀绿琉璃瓦</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">市场</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">北（后）</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">硬山/悬山顶</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">青灰瓦</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">南城门</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">南（前）</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">歇山顶</td>
+                    <td style="border: 1px solid #8b5a2b; padding: 10px;">青灰瓦</td>
+                </tr>
+            </table>
+        `;
+        
+        document.getElementById('strategy-overlay').style.display = 'block';
+        document.getElementById('strategy-book').style.display = 'block';
+    }
+
+    // 关闭攻略手册
+    function closeStrategyBook() {
+        document.getElementById('strategy-overlay').style.display = 'none';
+        document.getElementById('strategy-book').style.display = 'none';
+    }
+
+    // 绑定攻略手册按钮点击事件
+    document.addEventListener('DOMContentLoaded', function() {
+        const strategyBtn = document.getElementById('strategy-btn');
+        if (strategyBtn) {
+            strategyBtn.addEventListener('click', showStrategyBook);
+        }
+    });
+
+    // 第三关科普小博士功能
+    function showSciencePopup() {
+        const overlay = document.getElementById('science-overlay');
+        const popup = document.getElementById('science-popup');
+        
+        if (!overlay) {
+            const newOverlay = document.createElement('div');
+            newOverlay.id = 'science-overlay';
+            newOverlay.className = 'overlay';
+            newOverlay.onclick = closeSciencePopup;
+            document.body.appendChild(newOverlay);
+        }
+        
+        if (!popup) {
+            const newPopup = document.createElement('div');
+            newPopup.id = 'science-popup';
+            newPopup.innerHTML = `
+                <span class="science-close-btn" onclick="closeSciencePopup()">×</span>
+                <h3>🔍 古建筑屋顶科普小知识</h3>
+                <div class="science-images">
+                    <div class="science-item">
+                        <img src="ph4.jpg" alt="屋顶细节 1">
+                    </div>
+                    <div class="science-item">
+                        <img src="ph5.jpg" alt="屋顶细节 2">
+                    </div>
+                    <div class="science-item">
+                        <img src="ph6.jpg" alt="屋顶细节 3">
+                    </div>
+                    <div class="science-item">
+                        <img src="ph7.jpg" alt="屋顶细节 4">
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(newPopup);
+        }
+        
+        document.getElementById('science-overlay').style.display = 'block';
+        document.getElementById('science-popup').style.display = 'block';
+    }
+
+    function closeSciencePopup() {
+        document.getElementById('science-overlay').style.display = 'none';
+        document.getElementById('science-popup').style.display = 'none';
+    }
+
+    // 统一弹窗控制器
+    function showModal(title, msg, type, btnText, btnCallback) {
+        const modal = document.getElementById('modal');
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-title').className = type === 'error' ? 'fatal-error' : 'success';
+        document.getElementById('modal-msg').innerHTML = msg;
+
+        const btn = document.getElementById('modal-btn');
+        btn.innerText = btnText || (type === 'success' ? "继续前行" : "重试");
+        btn.onclick = () => {
+            modal.style.display = 'none';
+            if(btnCallback) btnCallback();
+        };
+        modal.style.display = 'flex';
+    }
+
+    // ==================== 教学关卡系统 ====================
+    let currentLevel = 0;
+    let level1Placements = {};
+    let level2Answers = {};
+
+    // 开始教学关卡
+    function startTeachingLevel(level) {
+        currentLevel = level;
+        document.getElementById('main-menu').style.display = 'none';
+        document.getElementById('status-bar').style.display = 'none';
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('level-container').style.display = 'flex';
+        document.querySelector('.strategy-btn').style.display = 'flex'; // 显示攻略手册按钮
+
+        // 隐藏所有子内容
+        document.getElementById('level-1-content').style.display = 'none';
+        document.getElementById('level-2-content').style.display = 'none';
+        document.getElementById('level-3-content').style.display = 'none';
+
+        if (level === 1) {
+            document.getElementById('level-title').innerText = '第一关：《考工记》方位篇';
+            document.getElementById('level-instruction').innerText = '理解"左祖右社，面朝后市"的方位规则';
+            document.getElementById('level-1-content').style.display = 'block';
+            initLevel1();
+        } else if (level === 2) {
+            document.getElementById('level-title').innerText = '第二关：大明瓦色等级篇';
+            document.getElementById('level-instruction').innerText = '掌握瓦色的等级禁忌';
+            document.getElementById('level-2-content').style.display = 'block';
+            initLevel2();
+        } else if (level === 3) {
+            document.getElementById('level-title').innerText = '第三关：屋顶形制篇';
+            document.getElementById('level-instruction').innerText = '识别屋顶形制的等级差异';
+            document.getElementById('level-3-content').style.display = 'block';
+            initLevel3();
+        }
+    }
+
+    function backToMenu() {
+        document.getElementById('main-menu').style.display = 'flex';
+        document.getElementById('level-container').style.display = 'none';
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('status-bar').style.display = 'none';
+        document.querySelector('.strategy-btn').style.display = 'flex'; // 显示攻略手册按钮
+
+        // 如果是从终极关卡退回，重置其数据
+        closeModalAndResetFinal();
+    }
+
+    // 退出游戏到开场页面
+    function quitGame() {
+        showModal('确认退出', '确定要退出游戏吗？\n当前进度将会丢失。', 'error', '确认退出', () => {
+            // 尝试关闭窗口
+            window.close();
+            
+            // 如果 window.close() 不起作用（现代浏览器通常不允许脚本关闭窗口）
+            // 则返回到开场页面
+            setTimeout(() => {
+                // 隐藏所有游戏界面
+                document.getElementById('main-menu').style.display = 'none';
+                document.getElementById('level-container').style.display = 'none';
+                document.getElementById('game-container').style.display = 'none';
+                document.getElementById('status-bar').style.display = 'none';
+                document.querySelector('.strategy-btn').style.display = 'none';
+                
+                // 显示开场页面
+                document.getElementById('intro-screen').style.display = 'flex';
+                
+                // 重置游戏状态
+                currentLevel = 0;
+                closeModalAndResetFinal();
+                
+                // 可选：清空浏览器历史记录，让用户无法通过后退按钮回来
+                window.location.replace(window.location.href);
+            }, 500);
+        });
+    }
+
+    // 解锁下一关
+    function unlockNextLevel(current) {
+        if (current === 1) {
+            const btn = document.getElementById('btn-level2');
+            btn.disabled = false; btn.classList.remove('locked'); btn.innerHTML = '第二关：瓦色等级篇';
+        } else if (current === 2) {
+            const btn = document.getElementById('btn-level3');
+            btn.disabled = false; btn.classList.remove('locked'); btn.innerHTML = '第三关：屋顶形制篇';
+        } else if (current === 3) {
+            const btn = document.getElementById('btn-final');
+            btn.disabled = false; btn.classList.remove('locked'); btn.innerHTML = '终极关卡：帝都规划与营缮';
+        }
+    }
+
+    // ========== 关卡 1：方位匹配 ==========
+    let selectedLabel = null;
+
+    function initLevel1() {
+        level1Placements = {};
+        document.querySelectorAll('.t-cell').forEach(cell => {
+            const idx = cell.getAttribute('data-idx');
+            if (idx === '4') {
+                cell.innerHTML = '<span class="t-marker">朱雀玄武纹</span><div style="font-size: 18px; color: #ffd700; font-weight: bold;">皇宫</div>';
+            } else {
+                const markerText = cell.querySelector('.t-marker') ? cell.querySelector('.t-marker').innerText : '';
+                cell.innerHTML = `<span class="t-marker">${markerText}</span>`;
+            }
+        });
+
+        // 绑定标签点击
+        document.querySelectorAll('.building-label').forEach(label => {
+            label.style.display = 'inline-block';
+            label.classList.remove('selected');
+            // 防止重复绑定
+            label.onclick = function() {
+                if (selectedLabel) selectedLabel.classList.remove('selected');
+                selectedLabel = this;
+                this.classList.add('selected');
+            };
+        });
+
+        // 绑定网格点击
+        document.querySelectorAll('.t-cell').forEach(cell => {
+            cell.onclick = function() {
+                if (!selectedLabel) return;
+                const idx = this.getAttribute('data-idx');
+                if (['0','2','6','8'].includes(idx)) {
+                    showModal('大理寺警告', '四角为天地留白之地，不可放置建筑！', 'error');
+                    return;
+                }
+                if (idx === '4') {
+                    showModal('大理寺警告', '至尊之地已有皇宫，不可重复放置！', 'error');
+                    return;
+                }
+                level1Placements[idx] = selectedLabel.getAttribute('data-building');
+                const markerText = this.querySelector('.t-marker').innerText;
+                this.innerHTML = `<span class="t-marker">${markerText}</span><div style="font-size: 16px; color: #ffd700; font-weight: bold;">${selectedLabel.innerText.split('（')[0].trim()}</div>`;
+
+                selectedLabel.style.display = 'none';
+                selectedLabel.classList.remove('selected');
+                selectedLabel = null;
+            };
+        });
+    }
+
+    function checkLevel1() {
+        const correct = { '5': '太庙', '3': '社稷坛', '1': '市场', '7': '南城门' };
+
+        if (Object.keys(level1Placements).length < 4) {
+            showModal('提示', '请将四个建筑全部放置到九宫格中！', 'error');
+            return;
+        }
+
+        let allCorrect = true;
+        for (let idx in correct) {
+            if (level1Placements[idx] !== correct[idx]) {
+                allCorrect = false; break;
+            }
+        }
+
+        if (allCorrect) {
+            showModal('钦天监赞许', '方位合乎古制！你已领悟"左祖右社，面朝后市"之精髓。\n\n📖 解锁《大明营缮考·方位卷》', 'success', '开启下一章', () => unlockNextLevel(1));
+            saveKnowledge('方位卷', '<p><strong>【左祖右社，面朝后市】</strong></p><p>天子居中，坐北朝南。东方青龙为左，西方白虎为右。</p><p><strong>太庙</strong>立于皇宫左侧（东方），为左祖；<br><strong>社稷坛</strong>立于皇宫右侧（西方），为右社；<br><strong>市场</strong>置于皇宫背后（北方），为后市；<br><strong>南城门</strong>位于皇宫正前（南方），为面朝。</p>');
+        } else {
+            showModal('礼部驳回', '方位不合古制！请重思：<br>皇帝面南而坐，左手为东，右手为西。<br>左祖右社，面朝后市。', 'error');
+        }
+    }
+
+    // ========== 关卡 2：令牌批红系统 ==========
+    let level2SelectedToken = null;
+    let level2CorrectCount = 0;
+    const level2AnswersDict = { 
+        '皇宫': '明黄瓦', 
+        '太庙': '明黄瓦', 
+        '社稷坛': '孔雀绿瓦', 
+        '市场': '青灰瓦', 
+        '南城门': '青灰瓦' 
+    };
+
+    function initLevel2() {
+        level2SelectedToken = null;
+        level2CorrectCount = 0;
+        document.querySelectorAll('.token').forEach(t => t.classList.remove('selected'));
+        
+        const container = document.getElementById('blueprint-tasks');
+        container.innerHTML = '';
+        
+        // 生成 5 个案卷
+        for (let b in level2AnswersDict) {
+            const div = document.createElement('div');
+            div.className = 'blueprint-item';
+            div.innerHTML = `
+                <span>案卷：拟修缮【${b}】</span>
+                <span class="stamp-pi">批</span>
+            `;
+            // 绑定点击批复事件
+            div.onclick = () => applyTokenToBlueprint(b, div);
+            container.appendChild(div);
+        }
+    }
+
+    // 拾取令牌
+    function selectToken(color, element) {
+        document.querySelectorAll('.token').forEach(t => t.classList.remove('selected'));
+        element.classList.add('selected');
+        level2SelectedToken = color;
+    }
+
+    // 朱笔批红判定
+    function applyTokenToBlueprint(building, element) {
+        const stamp = element.querySelector('.stamp-pi');
+        
+        // 如果这个案卷已经批过了，就不再响应
+        if (stamp.classList.contains('active')) return;
+
+        // 如果手里没拿令牌
+        if (!level2SelectedToken) {
+            showModal('提示', '请先在左侧拾取你要使用的工部令牌！', 'error');
+            return;
+        }
+
+        // 核心生死判定
+        if (level2SelectedToken === level2AnswersDict[building]) {
+            // 选对了！砸下印章
+            stamp.classList.add('active');
+            level2CorrectCount++;
+            
+            // 检查是否 5 个全部批完
+            if (level2CorrectCount === 5) {
+                setTimeout(() => {
+                    showModal('工部赞许', '案卷全部批复无误！你已深谙大明瓦色等级之要义，未出半点差池。\n\n解锁《大明营缮考·瓦色卷》', 'success', '开启下一章', () => unlockNextLevel(2));
+                    saveKnowledge('瓦色卷', '<p><strong>【琉璃瓦色等级】</strong></p><p>明黄瓦：<strong>皇家专属</strong>，仅皇宫、太庙可用。</p><p>孔雀绿瓦：<strong>祭祀专用</strong>，社稷坛等使用。</p><p>青灰瓦：<strong>官民实用</strong>，市场、城门等使用。低调朴素，不得僭越。</p>');
+                }, 600); // 延迟一点让玩家看清最后一个印章砸下
+            }
+        } else {
+            // 选错了！大理寺警告
+            showModal('大理寺警告', `逾制！【${building}】岂能使用【${level2SelectedToken}】？\n\n大明律例不容儿戏，满门抄斩！`, 'error', '领罪重来', () => initLevel2());
+        }
+    }
+
+    // ========== 关卡 3：屋顶形制（令牌批红系统） ==========
+    let level3SelectedToken = null;
+    let level3CorrectCount = 0;
+    const level3RoofsDict = { 
+        '皇宫': '庑殿顶', 
+        '太庙': '歇山顶', 
+        '社稷坛': '歇山顶', 
+        '市场': '硬山/悬山顶', 
+        '南城门': '歇山顶' 
+    };
+
+    function initLevel3() {
+        level3Ranking = [];
+        level3SelectedToken = null;
+        level3CorrectCount = 0;
+        document.querySelectorAll('.roof-card').forEach(c => {
+            c.classList.remove('selected');
+            c.removeAttribute('data-rank');
+        });
+        document.querySelectorAll('.token').forEach(t => t.classList.remove('selected'));
+        
+        // 显示第一步，隐藏第二步
+        document.getElementById('step1-container').style.display = 'block';
+        document.getElementById('step2-container').style.display = 'none';
+    }
+
+    function selectRoofCard(element) {
+        const roof = element.getAttribute('data-roof');
+        if (level3Ranking.includes(roof)) {
+            // 如果已选，撤销该选择及之后的选择，简单起见直接重置排序
+            level3Ranking = [];
+            document.querySelectorAll('.roof-card').forEach(c => {
+                c.classList.remove('selected');
+                c.removeAttribute('data-rank');
+            });
+        } else {
+            level3Ranking.push(roof);
+            element.classList.add('selected');
+            element.setAttribute('data-rank', level3Ranking.length);
+            
+            // 检查是否 3 个都排完序了
+            if (level3Ranking.length === 3) {
+                const correctRanking = ['庑殿顶', '歇山顶', '硬山/悬山顶'];
+                let rankingCorrect = JSON.stringify(level3Ranking) === JSON.stringify(correctRanking);
+                
+                if (rankingCorrect) {
+                    // 排序正确！给每个卡片砸下印章
+                    document.querySelectorAll('.roof-card').forEach((card, index) => {
+                        setTimeout(() => {
+                            const stamp = card.querySelector('.stamp-pi') || createStamp(card);
+                            stamp.classList.add('active');
+                        }, index * 300);
+                    });
+                    
+                    // 延迟后进入第二步
+                    setTimeout(() => {
+                        showModal('将作监赞许', '屋顶等级排序合乎礼法！\n\n现在请为各建筑分配屋顶。', 'success', '继续', () => {
+                            initStep2();
+                        });
+                    }, 1200);
+                } else {
+                    // 排序错误
+                    setTimeout(() => {
+                        showModal('礼部驳回', '屋顶等级排序错误！高低尊卑不可乱。<br>点击卡片会重置顺序，请重新依次点击。', 'error', '重新排序', () => {
+                            level3Ranking = [];
+                            document.querySelectorAll('.roof-card').forEach(c => {
+                                c.classList.remove('selected');
+                                c.removeAttribute('data-rank');
+                            });
+                        });
+                    }, 500);
+                }
+            }
+        }
+    }
+
+    // 创建印章元素
+    function createStamp(parent) {
+        const stamp = document.createElement('span');
+        stamp.className = 'stamp-pi';
+        stamp.innerText = '批';
+        parent.style.position = 'relative';
+        parent.appendChild(stamp);
+        return stamp;
+    }
+
+    // 初始化第二步
+    function initStep2() {
+        document.getElementById('step1-container').style.display = 'none';
+        document.getElementById('step2-container').style.display = 'block';
+        
+        const container = document.getElementById('blueprint-roof-tasks');
+        container.innerHTML = '';
+        
+        // 生成 5 个案卷
+        for (let b in level3RoofsDict) {
+            const div = document.createElement('div');
+            div.className = 'blueprint-item';
+            div.innerHTML = `
+                <span>案卷：拟修缮【${b}】</span>
+                <span class="stamp-pi">批</span>
+            `;
+            // 绑定点击批复事件
+            div.onclick = () => applyTokenToBlueprint3(b, div);
+            container.appendChild(div);
+        }
+    }
+
+    // 拾取屋顶令牌
+    function selectToken3(roof, element) {
+        document.querySelectorAll('.token').forEach(t => t.classList.remove('selected'));
+        element.classList.add('selected');
+        level3SelectedToken = roof;
+    }
+
+    // 朱笔批红判定（第三步）
+    function applyTokenToBlueprint3(building, element) {
+        const stamp = element.querySelector('.stamp-pi');
+        
+        // 如果这个案卷已经批过了，就不再响应
+        if (stamp.classList.contains('active')) return;
+
+        // 如果手里没拿令牌
+        if (!level3SelectedToken) {
+            showModal('提示', '请先在左侧拾取你要使用的工部令牌！', 'error');
+            return;
+        }
+
+        // 核心生死判定
+        if (level3SelectedToken === level3RoofsDict[building]) {
+            // 选对了！砸下印章
+            stamp.classList.add('active');
+            level3CorrectCount++;
+            
+            // 检查是否 5 个全部批完
+            if (level3CorrectCount === 5) {
+                setTimeout(() => {
+                    showModal('将作监赞许', '案卷全部批复无误！你已深谙大明屋顶形制之要义，未出半点差池。\n\n解锁《大明营缮考·屋顶卷》', 'success', '前往终极考核', () => unlockNextLevel(3));
+                    saveKnowledge('屋顶卷', '<p><strong>【屋顶形制等级】</strong></p><p><strong>庑殿顶</strong>：最高等级。<strong>仅皇宫大殿可用</strong>。</p><p><strong>歇山顶</strong>：次高等级。太庙、社稷坛、城门可用。</p><p><strong>硬山/悬山顶</strong>：最低等级。市场、平民可用。</p>');
+                }, 600);
+            }
+        } else {
+            // 选错了！大理寺警告
+            showModal('将作监驳回', `逾制！【${building}】岂能使用【${level3SelectedToken}】？\n\n不合礼法，当斩！`, 'error', '领罪重来', () => initLevel3());
+        }
+    }
+
+    // ========== 知识库系统 ==========
+    let knowledgeBook = {};
+
+    function saveKnowledge(title, content) {
+        knowledgeBook[title] = content;
+    }
+
+    function showKnowledgeBook() {
+        const overlay = document.getElementById('overlay');
+        const book = document.getElementById('knowledge-book');
+        const content = document.getElementById('book-content');
+
+        if (Object.keys(knowledgeBook).length === 0) {
+            content.innerHTML = '<p style="color: #a0522d; font-style: italic; text-align:center;">尚未解锁任何典籍碎片。<br>请先通过教学关卡。</p>';
+        } else {
+            let html = '';
+            for (let title in knowledgeBook) {
+                html += `<h4 style="color: #8b5a2b; margin-top: 15px;">📜 ${title}</h4>${knowledgeBook[title]}`;
+            }
+            content.innerHTML = html;
+        }
+        overlay.style.display = 'block';
+        book.style.display = 'block';
+    }
+
+    function closeKnowledgeBook() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('knowledge-book').style.display = 'none';
+    }
+
+
+    // ==================== 终极关卡系统 ====================
+    let finalGridData = Array(9).fill(null);
+    let finalPlacementOrder = [];
+    let finalSelectedIndex = -1;
+    let finalFailCount = 0;
+
+    function startFinalLevel() {
+        document.getElementById('main-menu').style.display = 'none';
+        document.getElementById('level-container').style.display = 'none';
+        document.getElementById('status-bar').style.display = 'flex';
+        document.getElementById('game-container').style.display = 'flex';
+        document.querySelector('.strategy-btn').style.display = 'flex'; // 显示攻略手册按钮
+        closeModalAndResetFinal();
+    }
+
+    function selectFinalCell(index) {
+        document.querySelectorAll('#grid .cell').forEach(c => c.classList.remove('selected'));
+        document.querySelectorAll('#grid .cell')[index].classList.add('selected');
+        finalSelectedIndex = index;
+    }
+
+    function placeBuilding() {
+        if (finalSelectedIndex === -1) {
+            showModal('提示', '请先点击左侧九宫格选中一处地块！', 'error'); return;
+        }
+
+        const building = document.getElementById('sel-building').value;
+        const roof = document.getElementById('sel-roof').value;
+        const color = document.getElementById('sel-color').value;
+
+        if (!building || !roof || !color) {
+            showModal('提示', '卷宗不全，请在右侧选定建筑、屋顶与瓦色！', 'error'); return;
+        }
+        if (finalPlacementOrder.includes(building)) {
+            showModal('提示', '该建筑已在图中，不可重复建设！', 'error'); return;
+        }
+
+        // 绝对陷阱：四角不可放
+        if ([0, 2, 6, 8].includes(finalSelectedIndex)) {
+            triggerFatalError("逾制！", "四角为天地留白之地，不可放置核心建筑。妄动风水，当斩！"); return;
+        }
+
+        // 顺序校验陷阱 (必须 皇宫 -> 太庙 -> 社稷坛)
+        if (finalPlacementOrder.length === 0 && building !== '皇宫') {
+            showModal('提示', "礼制有序，不可僭越！必须先确立皇宫至尊之位。", 'error'); return;
+        }
+        if (finalPlacementOrder.length === 1 && building !== '太庙') {
+            showModal('提示', "礼制有序，皇宫立后，须先尊左祖（太庙）。", 'error'); return;
+        }
+        if (finalPlacementOrder.length === 2 && building !== '社稷坛') {
+            showModal('提示', "礼制有序，太庙立后，须敬右社（社稷坛）。", 'error'); return;
+        }
+
+        finalGridData[finalSelectedIndex] = { building, roof, color };
+        finalPlacementOrder.push(building);
+        renderFinalGrid();
+        updateFinalStatus();
+    }
+
+    function renderFinalGrid() {
+        const cells = document.querySelectorAll('#grid .cell');
+        for (let i = 0; i < 9; i++) {
+            const markerHTML = cells[i].innerHTML.match(/<span class="marker">.*?<\/span>/)?.[0] || '';
+            cells[i].innerHTML = markerHTML;
+
+            if (finalGridData[i]) {
+                cells[i].innerHTML += `
+                    <div class="b-name">${finalGridData[i].building}</div>
+                    <div class="b-roof">${finalGridData[i].roof}</div>
+                    <div class="b-color">${finalGridData[i].color}</div>
+                `;
+            }
+        }
+    }
+
+    function updateFinalStatus() {
+        let txt = "待定中心";
+        if (finalPlacementOrder.length === 1) txt = "确立左祖";
+        else if (finalPlacementOrder.length === 2) txt = "确立右社";
+        else if (finalPlacementOrder.length === 3) txt = "规划市与门";
+        else if (finalPlacementOrder.length === 5) txt = "营缮完毕，等待呈报";
+        document.getElementById('current-step').innerText = txt;
+    }
+
+    function submitDesign() {
+        if (finalPlacementOrder.length < 5) {
+            showModal('提示', "五大核心建筑未安置齐全，不可呈报！", 'error'); return;
+        }
+
+        // 1. 位置校验 (皇宫=4, 市=1, 门=7, 庙=5, 社=3)
+        if (finalGridData[4]?.building !== '皇宫') return triggerFatalError("大理寺警告", "至尊之地不可僭越！皇宫偏离中心，意图谋反，斩！");
+        if (finalGridData[5]?.building !== '太庙') return triggerFatalError("大理寺警告", "左祖不合制！太庙未能立于皇宫左侧(东方)，有负先祖！");
+        if (finalGridData[3]?.building !== '社稷坛') return triggerFatalError("大理寺警告", "右社错位！社稷坛未能立于皇宫右侧(西方)，国本不稳！");
+        if (finalGridData[1]?.building !== '市场') return triggerFatalError("大理寺警告", "后市失位！市场未能立于皇宫背后(北方)，扰乱宫禁！");
+        if (finalGridData[7]?.building !== '南城门') return triggerFatalError("大理寺警告", "南门错位！大明威仪尽失，当斩！");
+
+        // 2. 规制校验
+        if (finalGridData[4].roof !== '庑殿顶' || finalGridData[4].color !== '明黄瓦')
+            return triggerFatalError("大理寺警告", "帝王规制不可逾！皇宫必须是最高规制的【庑殿顶】与【明黄瓦】！");
+        if (finalGridData[5].roof === '庑殿顶') return triggerFatalError("大理寺警告", "祖庙不可僭越正殿！太庙绝不可用庑殿顶！");
+        if (finalGridData[5].roof !== '歇山顶' || finalGridData[5].color !== '明黄瓦')
+            return triggerFatalError("工部驳回", "祖庙形制错误！太庙当配【歇山顶】与皇家【明黄瓦】！");
+        if (finalGridData[3].roof === '庑殿顶') return triggerFatalError("大理寺警告", "社稷不可僭越正殿！");
+        if (finalGridData[3].roof !== '歇山顶' || finalGridData[3].color !== '孔雀绿瓦')
+            return triggerFatalError("工部驳回", "社稷祭祀不合制！祭祀五土当配【歇山顶】与【孔雀绿瓦】！");
+        if (finalGridData[1].roof === '歇山顶' || finalGridData[1].roof === '庑殿顶')
+            return triggerFatalError("大理寺警告", "市井建筑僭越等级，当斩！平民不得用高级屋顶。");
+        if (finalGridData[1].color !== '青灰瓦')
+            return triggerFatalError("大理寺警告", "市井瓦色僭越！商铺只能使用粗糙的【青灰瓦】！");
+        if (finalGridData[7].roof !== '歇山顶' || finalGridData[7].color !== '青灰瓦')
+            return triggerFatalError("工部驳回", "城门规制逾矩！防御工事当用稳固的【歇山顶】配低调的【青灰瓦】！");
+
+        // 3. 通关
+        let isEasterEgg = (finalPlacementOrder[3] === '南城门' && finalPlacementOrder[4] === '市场');
+        let title = "圣旨下：大悦";
+        let text = "完美！你精通《考工记》城池布局，更熟谙大明建筑礼制。先帝遗愿终成，特赐你为【大明传世造办】！";
+
+        if (isEasterEgg) {
+            text = `<span class="easter-egg">【隐藏彩蛋触发】<br>你严格遵循了先礼后民的隐秘法度，天衣无缝！<br>解锁终极称号：『礼制圣人』！</span>`;
+        }
+
+        showModal(title, text, 'success', '叩谢皇恩', () => { window.location.reload(); });
+    }
+
+    function triggerFatalError(title, msg) {
+        finalFailCount++;
+        document.getElementById('fail-count').innerText = finalFailCount;
+        showModal(title, msg, 'error', '领罪退下 (清空重置)', closeModalAndResetFinal);
+
+        if (finalFailCount >= 3) {
+            document.getElementById('btn-hint').style.display = 'block';
+        }
+    }
+
+    function closeModalAndResetFinal() {
+        finalGridData = Array(9).fill(null);
+        finalPlacementOrder = [];
+        finalSelectedIndex = -1;
+        document.querySelectorAll('#grid .cell').forEach(c => c.classList.remove('selected'));
+        document.getElementById('sel-building').value = '';
+        document.getElementById('sel-roof').value = '';
+        document.getElementById('sel-color').value = '';
+        renderFinalGrid();
+        updateFinalStatus();
+    }
+
+    function useHint() {
+        showModal('《大明营缮考》残页', '1. 皇宫居中，太庙居东，社稷居西，市场居北，城门居南。<br>2. 绿瓦祭祀，灰瓦实用。<br>3. 顺序：君 -> 祖 -> 社 -> （自行定夺门与市）。', 'success', '阅毕');
+        document.getElementById('btn-hint').style.display = 'none';
+    }
+</script>
+</body>
+</html>

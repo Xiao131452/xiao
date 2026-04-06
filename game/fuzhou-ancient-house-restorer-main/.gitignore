@@ -1,0 +1,79 @@
+# =========================
+# Python / Django
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.env
+.env.*
+venv/
+.venv/
+ENV/
+env/
+
+# Django runtime
+db.sqlite3
+db.sqlite3-journal
+*.log
+staticfiles/
+media/
+
+# Django migrations cache
+**/migrations/__pycache__/
+
+# =========================
+# IDE / Editor
+# =========================
+.idea/
+.vscode/
+*.iml
+
+# =========================
+# OS / Windows
+# =========================
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# =========================
+# Build / Temp / Cache
+# =========================
+.cache/
+.tmp/
+.temp/
+*.tmp
+*.bak
+*.swp
+
+# =========================
+# Python tools
+# =========================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+coverage.xml
+htmlcov/
+
+# =========================
+# Node / Frontend (如未来引入)
+# =========================
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# =========================
+# Export / Generated Assets
+# （如运行期生成，不是原始素材）
+# =========================
+dist/
+build/
+out/
+
+# =========================
+# Private / Local-only
+# =========================
+.local/
+.localsettings.py

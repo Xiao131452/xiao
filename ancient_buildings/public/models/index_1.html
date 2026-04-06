@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故宫·太和殿 3D数字展馆</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            min-height: 100%;
+            background: url('/images/tu3.jpg') center center / cover no-repeat fixed;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #1f2937;
+        }
+        .font-song { font-family: "Source Han Serif SC", "Noto Serif SC", "STSong", serif; }
+        .bg-pattern::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.08;
+            background-image:
+                radial-gradient(circle at 12% 18%, #c9182a 0 2px, transparent 2px),
+                radial-gradient(circle at 88% 74%, #1a365d 0 2px, transparent 2px);
+            background-size: 160px 160px, 140px 140px;
+        }
+        .huiwen {
+            background-image: linear-gradient(90deg, rgba(201,24,42,.15) 0 20%, transparent 20% 40%, rgba(201,24,42,.15) 40% 60%, transparent 60% 80%, rgba(201,24,42,.15) 80%);
+            background-size: 60px 2px;
+            background-repeat: repeat-x;
+        }
+        .knowledge-card {
+            width: 240px;
+            transform-origin: top center;
+            transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+            background: #F5EFE6 !important;
+            border: 1px solid #C9182A !important;
+        }
+        .knowledge-card .card-toggle {
+            color: #1A365D !important;
+        }
+        .knowledge-card:hover {
+            background: #F8D7DA !important;
+        }
+        .knowledge-card.card-collapsed {
+            height: 104px;
+        }
+        .knowledge-card.card-collapsed .card-toggle {
+            height: 104px;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .card-content { display: none; }
+        .popup-mask {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: transparent;
+            backdrop-filter: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .3s ease, visibility .3s ease;
+        }
+        .popup-mask.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .popup-panel {
+            width: min(760px, 92vw);
+            max-height: 82vh;
+            overflow: auto;
+            border-radius: 12px;
+            background: #F8F5F0;
+            border: 2px solid #C9182A;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(12px) rotateX(-8deg);
+            transform-origin: top center;
+            transition: transform .3s ease;
+        }
+        .popup-mask.open .popup-panel {
+            transform: translateY(0) rotateX(0deg);
+        }
+        .cloud-spinner {
+            width: 68px;
+            height: 68px;
+            border-radius: 999px;
+            border: 3px solid rgba(245, 215, 110, 0.3);
+            border-top-color: #f5d76e;
+            border-right-color: #c9182a;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 24px rgba(201, 24, 42, .25);
+        }
+        .petal-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 1300;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .petal {
+            position: absolute;
+            width: var(--w, 14px);
+            height: var(--h, 10px);
+            border-radius: 65% 35% 68% 32%;
+            background:
+                radial-gradient(120% 100% at 25% 18%, rgba(255, 248, 252, 0.92) 0 22%, rgba(255, 210, 225, 0.88) 48%, rgba(219, 92, 126, 0.92) 100%),
+                radial-gradient(90% 80% at 80% 70%, rgba(170, 44, 90, 0.26) 0%, rgba(170, 44, 90, 0) 78%);
+            box-shadow:
+                0 1px 5px rgba(122, 32, 64, 0.22),
+                inset 0 1px 1px rgba(255, 255, 255, 0.45);
+            opacity: 0;
+            transform: translate3d(0, 0, 0) rotate(0deg) scale(0.85);
+            animation: petalFall var(--dur, 2.9s) ease-in forwards;
+            animation-delay: var(--delay, 0ms);
+        }
+        .petal::after {
+            content: "";
+            position: absolute;
+            width: 26%;
+            height: 26%;
+            border-radius: 50%;
+            right: 18%;
+            top: 14%;
+            background: rgba(255, 255, 255, 0.52);
+            filter: blur(0.3px);
+        }
+        @keyframes petalFall {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, -8px, 0) rotate(0deg) scale(0.75);
+            }
+            10% {
+                opacity: 1;
+            }
+            70% {
+                opacity: 0.9;
+            }
+            100% {
+                opacity: 0;
+                transform: translate3d(var(--driftX, 10px), var(--driftY, 420px), 0) rotate(var(--rot, 180deg)) scale(1);
+            }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .desktop-shell { min-width: 1240px; }
+    </style>
+</head>
+<body>
+    <div id="petal-layer" class="petal-layer" aria-hidden="true"></div>
+    <main class="relative h-screen overflow-hidden">
+        <section class="desktop-shell relative mx-auto h-full w-full max-w-[1240px] px-1">
+            <aside class="side-panel absolute left-1 top-10 z-[998] w-[240px] space-y-[10px]">
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>🏛️ 建筑概览</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        太和殿俗称"金銮殿"，是中国现存最大的木结构大殿，与曲阜孔庙大成殿、泰山岱庙天贶殿并称"东方三大殿"，位于紫禁城南北主轴线最显要位置。<br><br>
+                        始建于明永乐十八年（1420年），初名奉天殿；明嘉靖四十一年（1562年）改称皇极殿；清顺治二年（1645年）改今名。现存建筑为清康熙三十四年（1695年）重建后的形制。<br><br>
+                        面阔11间（长64米），进深5间（宽37米），建筑面积2377平方米，殿身高26.92米，连同三层汉白玉台基通高35.05米，是明清两代体量最大、等级最高的建筑物。
+                    </div>
+                </article>
+
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>📜 历史沿革与重大事件</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        • 1406年：永乐帝朱棣下诏营建北京宫殿<br>
+                        • 1420年：建成，次年即遭雷击焚毁<br>
+                        • 1562年：嘉靖帝重建后改称皇极殿<br>
+                        • 1644年：李自成攻入北京，焚毁部分宫殿；清军入关后改称太和殿<br>
+                        • 1695年：康熙帝大规模重建，改为现存11开间形制<br>
+                        • 1925年：故宫博物院成立，太和殿正式对公众开放<br>
+                        • 2002年：启动"百年大修"工程，全面修复太和殿建筑本体<br><br>
+                        明清24位皇帝中，有13位在此举行登基大典，康熙、乾隆等皇帝在此举行万寿节大典。
+                    </div>
+                </article>
+
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>🏮 建筑等级与礼制文化</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        • 屋顶：重檐庑殿顶（中国古建筑最高等级），覆盖皇家专属黄色琉璃瓦<br>
+                        • 脊兽：10只（全国唯一），依次为龙、凤、狮子、天马、海马、狻猊、狎鱼、獬豸、斗牛、行什，象征天子至尊<br>
+                        • 正脊大吻：高3.4米，重4.3吨（相当于一头成年大象），是中国现存最大的古建筑琉璃吻兽<br>
+                        • 门钉：9×9=81颗（皇家最高规格，九为阳数之极）<br>
+                        • 台基：三层汉白玉须弥座，高8.13米，长宽比9:5，象征"九五之尊"<br><br>
+                        整体布局遵循"天人合一、天子居中、前朝后寝、左祖右社"的礼制思想，体现阴阳五行的宇宙观。
+                    </div>
+                </article>
+
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>💡 建筑智慧与工艺</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        • 排水系统：台基共有1142个螭首排水口，大雨时形成"千龙吐水"奇观，实测暴雨后30分钟内可排完全部积水，600年无严重内涝<br>
+                        • 抗震系统：采用"台基-柱础-榫卯"三级减震，全殿无一根钉子，斗拱可吸收40%地震能量，历经1679年北京8级大地震、1976年唐山大地震仍完好无损<br>
+                        • 防火系统：殿前广场设308口太平缸，每口储水3000升；建筑间设防火墙，太和殿取消东西斜廊减少火灾蔓延风险<br>
+                        • 材料工艺：金砖经"三烧六磨"，每块造价一两黄金；金丝楠木从川滇深山采伐，一根运输需3-5年；共用黄琉璃瓦约15万片。
+                    </div>
+                </article>
+
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>👑 皇家生活与宫廷制度</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        • 三大典礼：元旦（春节）、冬至、万寿节（皇帝生日），皇帝在此接受百官朝贺并赐宴<br>
+                        • 其他用途：举行皇帝登基、大婚、册立皇后、命将出征、颁布诏书、宣布进士金榜等大典<br>
+                        • 注：太和殿并非皇帝日常上朝的地方，日常理政多在乾清宫或养心殿<br>
+                        • 宫廷机构：内务府管理宫廷事务，御膳房负责膳食，敬事房管理太监宫女，造办处制作御用器物。
+                    </div>
+                </article>
+            </aside>
+
+            <section class="center-stage absolute left-1/2 top-10 z-[997] w-[700px] -translate-x-1/2">
+                <div class="center-frame h-[520px] rounded-xl bg-gradient-to-br from-[#C9182A] to-[#F5D76E] p-[2px] shadow-[0_4px_20px_rgba(201,24,42,0.15)]">
+                    <div class="relative h-full w-full overflow-hidden rounded-[10px] bg-transparent">
+                        <div id="canvas-container" class="absolute inset-0"></div>
+                        <div id="loading-overlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center">
+                            <div class="cloud-spinner"></div>
+                            <p class="mt-3 text-sm text-[#F5D76E]">祥云载殿 · 加载中...</p>
+                        </div>
+                        <div class="absolute bottom-4 left-1/2 z-40 -translate-x-1/2">
+                            <button data-reset-view class="rounded-md border border-white/40 bg-white/25 px-5 py-2 text-sm text-white backdrop-blur-md transition-all duration-300 hover:bg-[#C9182A]">还原视角</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="side-panel absolute right-1 top-10 z-[998] w-[240px] space-y-[10px]">
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>📊 太和殿核心数据</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        • 总占地面积：2377平方米<br>
+                        • 通高：35.05米（殿身26.92米+台基8.13米）<br>
+                        • 立柱总数：72根<br>
+                        • 金柱：28根（对应天上二十八星宿）<br>
+                        • 殿内金柱：6根（直径1米，沥粉贴金云龙图案）<br>
+                        • 台基螭首：1142个<br>
+                        • 殿前铜鼎：18座（乾隆年间铸造）<br>
+                        • 琉璃瓦：约15万片
+                    </div>
+                </article>
+
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>🎨 故宫文物珍宝总览</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        • 故宫博物院馆藏总量：1951091件/套（2024年底官方统计）<br>
+                        • 一级文物：8000余件<br>
+                        • 十大镇馆之宝：《清明上河图》《千里江山图》、成化斗彩鸡缸杯、各种釉彩大瓶、大禹治水图玉山、毛公鼎、大盂鼎、铜镀金写字人钟等<br>
+                        • 文物分类：书画15.6万件、陶瓷36.7万件、青铜器1.6万件、玉器2.9万件、织绣18万件、古籍60万件<br>
+                        • 已数字化文物：107万件，数字文物库开放15万件高清影像。
+                    </div>
+                </article>
+
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>📱 数字故宫与文化传承</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        • 建成故宫数字孪生应用服务平台，实时监测建筑与文物状态<br>
+                        • 推出《画游千里江山》《画游清明上河图》等沉浸式数字展<br>
+                        • 开放VR/AR游览，可360度观赏文物和建筑细节<br>
+                        • 2026年将完成全部195万件文物数字化采集，故宫北院区也将竣工开放。
+                    </div>
+                </article>
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>👥 太和殿相关核心人物故事</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        <strong>1. 明成祖朱棣（紫禁城缔造者）</strong><br>
+                        - 1406年下诏营建北京宫殿，征调全国10万工匠、百万夫役，耗时14年建成紫禁城<br>
+                        - 1421年正月初一，在奉天殿（太和殿前身）举行迁都大典，正式将明朝都城从南京迁至北京<br>
+                        - 是第一位在太和殿登基并使用的皇帝，确立了太和殿作为国家最高礼制殿堂的地位<br>
+                        - 迁都后仅3个月，奉天殿遭雷击焚毁，朱棣认为是上天示警，至死未敢重建<br><br>
+
+                        <strong>2. 清圣祖康熙（现存太和殿重建者）</strong><br>
+                        - 1695年主持太和殿大规模重建工程，将原9开间改为11开间，形成了我们今天看到的形制<br>
+                        - 亲自审定建筑图纸和材料规格，要求“务期坚固，永垂久远”<br>
+                        - 重建后的太和殿，在体量、等级和工艺上都达到了中国古代建筑的顶峰<br>
+                        - 在位61年，在太和殿举行过多次万寿节大典和命将出征仪式<br><br>
+
+                        <strong>3. 清高宗乾隆（太和殿礼制巅峰）</strong><br>
+                        - 在位60年，将太和殿的礼制规格推向极致，在此举行过4次万寿节大典<br>
+                        - 1795年，在太和殿举行“禅位大典”，将皇位传给嘉庆帝，成为中国历史上唯一一位在太和殿禅位的皇帝<br>
+                        - 为太和殿题写“建极绥猷”匾额，意为“天子上对皇天、下对庶民的双重神圣使命”<br>
+                        - 下令铸造太和殿前的18座铜鼎，象征清朝的18个行省<br><br>
+
+                        <strong>4. 爱新觉罗·溥仪（末代皇帝）</strong><br>
+                        - 1908年12月2日，年仅3岁的溥仪在太和殿登基，成为清朝最后一位皇帝<br>
+                        - 登基仪式上，溥仪被太和殿的威严场面吓得大哭，其父载沣连忙哄道：“别哭别哭，快完了，快完了”，一语成谶<br>
+                        - 1912年2月12日，隆裕太后在养心殿颁布退位诏书，清朝灭亡，太和殿从此不再是皇权的象征<br>
+                        - 1924年被冯玉祥驱逐出宫，1925年故宫博物院成立，太和殿正式对公众开放<br><br>
+
+                        <strong>5. 袁世凯（复辟闹剧）</strong><br>
+                        - 1915年12月12日，袁世凯宣布复辟帝制，改国号为“中华帝国”，定1916年为“洪宪元年”<br>
+                        - 计划在太和殿举行登基大典，为此拆除了太和殿内的龙椅，换上了自己设计的西式宝座<br>
+                        - 登基仪式最终因全国反对而草草收场，袁世凯仅做了83天皇帝就被迫取消帝制<br>
+                        - 他留下的西式宝座一直保留到1959年，才被故宫博物院换回原来的龙椅<br><br>
+
+                        <strong>6. 梁思成（太和殿守护者）</strong><br>
+                        - 1937年抗日战争爆发前，梁思成带领营造学社对太和殿进行了第一次全面测绘<br>
+                        - 绘制了数百张精确的建筑图纸，为后来的太和殿修复工程提供了最重要的依据<br>
+                        - 1949年后，主持制定了故宫古建筑保护规划，提出了“整旧如旧”的修复原则<br>
+                        - 被誉为“中国现代建筑之父”，为太和殿和整个故宫的保护做出了不可磨灭的贡献
+                    </div>
+                </article>
+                <article class="knowledge-card card-collapsed rounded-lg border border-gray-100 bg-white p-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#e8b0b5] hover:shadow-[0_8px_18px_rgba(0,0,0,0.12)]">
+                    <button class="card-toggle flex w-full items-center justify-between px-4 py-3 text-left font-semibold text-[#1A365D]"><span>🗺️ 故宫大布局地图</span><span>▸</span></button>
+                    <div class="card-content px-4 pb-4 pt-1 text-sm leading-6 text-gray-700">
+                        <p class="mb-3">故宫大的布局地图（点击卡片查看大图）。</p>
+                        <img
+                            src="/images/taihedian.jpg"
+                            alt="故宫大布局地图"
+                            class="w-full rounded-md border border-gray-200"
+                            loading="lazy"
+                        />
+                    </div>
+                </article>
+            </aside>
+        </section>
+    </main>
+
+    <div id="card-popup" class="popup-mask" aria-hidden="true">
+        <div class="popup-panel">
+            <div class="flex items-center justify-between border-b border-red-100 px-5 py-4">
+                <h3 id="popup-title" class="font-song text-xl font-bold text-[#1A365D]"></h3>
+                <button id="popup-close" class="rounded-md border border-gray-300 px-3 py-1 text-sm text-[#1A365D] transition-colors hover:text-[#C9182A]">关闭</button>
+            </div>
+            <div id="popup-content" class="px-5 py-4 text-sm leading-7 text-[#1A365D]"></div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        const container = document.getElementById('canvas-container');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const scene = new THREE.Scene();
+        scene.background = null;
+
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 10000);
+        camera.position.set(0.2, 0.1, 1.2);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearAlpha(0);
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.set(0.2, 0.1, 0);
+
+        const grid = new THREE.GridHelper(100, 100, 0x444444, 0x2c2c2c);
+        scene.add(grid);
+
+        const axesHelper = new THREE.AxesHelper(50);
+        // 保留坐标轴对象用于内部定位/调试逻辑，但在展示层隐藏
+        axesHelper.visible = false;
+        scene.add(axesHelper);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        directionalLight.position.set(50, 100, 50);
+        scene.add(directionalLight);
+
+        const loader = new GLTFLoader();
+        loader.load('./taihedian.glb', (gltf) => {
+            const model = gltf.scene;
+            model.position.set(0.5, -0.25, -40);
+
+            const customScale = 0.005;
+            model.scale.set(customScale, customScale, customScale);
+
+            model.traverse((child) => {
+                const isGhost = /LIGHT|CAM|Direct|Target/i.test(child.name);
+                if (isGhost) {
+                    child.visible = false;
+                } else if (child.isMesh) {
+                    child.frustumCulled = false;
+
+                    const origColor = child.material.color || new THREE.Color(0xcccccc);
+                    const origMap = child.material.map;
+                    child.material = new THREE.MeshBasicMaterial({
+                        color: origColor,
+                        map: origMap
+                    });
+                }
+            });
+
+            scene.add(model);
+            camera.position.set(0.2, 0.1, 1.2);
+            camera.lookAt(0.2, 0.1, 0);
+            if (loadingOverlay) loadingOverlay.style.display = 'none';
+        }, undefined, (error) => {
+            console.error('模型加载失败:', error);
+            if (loadingOverlay) {
+                loadingOverlay.querySelector('p').textContent = '模型加载失败，请刷新重试';
+            }
+        });
+
+        window.resetView = () => {
+            camera.position.set(0.2, 0.1, 1.2);
+            controls.target.set(0.2, 0.1, 0);
+            controls.update();
+        };
+
+        document.querySelectorAll('[data-reset-view]').forEach((btn) => {
+            btn.addEventListener('click', () => window.resetView());
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+
+    <script>
+        const popup = document.getElementById('card-popup');
+        const popupTitle = document.getElementById('popup-title');
+        const popupContent = document.getElementById('popup-content');
+        const popupClose = document.getElementById('popup-close');
+        const petalLayer = document.getElementById('petal-layer');
+
+        function openPopup(title, contentHtml) {
+            popupTitle.textContent = title;
+            popupContent.innerHTML = contentHtml;
+            popup.classList.add('open');
+            popup.setAttribute('aria-hidden', 'false');
+        }
+        function triggerPetalEffect(originX, originY) {
+            if (!petalLayer) return;
+            const viewportW = window.innerWidth;
+            const viewportH = window.innerHeight;
+            const count = 34;
+            for (let i = 0; i < count; i += 1) {
+                const petal = document.createElement('span');
+                petal.className = 'petal';
+
+                // 全屏生成：左右两侧权重更高，中间也有少量花瓣
+                const zoneRoll = Math.random();
+                let startX = 0;
+                if (zoneRoll < 0.42) {
+                    startX = Math.random() * (viewportW * 0.28);
+                } else if (zoneRoll < 0.84) {
+                    startX = viewportW * (0.72 + Math.random() * 0.28);
+                } else {
+                    startX = viewportW * (0.28 + Math.random() * 0.44);
+                }
+                // 点击位置作为轻微偏置，让交互有回应感，但仍是全屏落花
+                startX += ((originX - viewportW / 2) / viewportW) * 40;
+                const startY = -20 - Math.random() * Math.max(40, viewportH * 0.12);
+
+                const driftX = (Math.random() * 220 - 110).toFixed(2);
+                const driftY = (viewportH * (0.72 + Math.random() * 0.34)).toFixed(2);
+                const rotate = `${(Math.random() * 540 - 270).toFixed(1)}deg`;
+                const duration = `${2.2 + Math.random() * 1.9}s`;
+                const delay = `${Math.random() * 460}ms`;
+                const width = 10 + Math.random() * 10;
+                const height = width * (0.62 + Math.random() * 0.24);
+
+                petal.style.left = `${startX}px`;
+                petal.style.top = `${startY}px`;
+                petal.style.setProperty('--driftX', `${driftX}px`);
+                petal.style.setProperty('--driftY', `${driftY}px`);
+                petal.style.setProperty('--rot', rotate);
+                petal.style.setProperty('--dur', duration);
+                petal.style.setProperty('--delay', delay);
+                petal.style.setProperty('--w', `${width}px`);
+                petal.style.setProperty('--h', `${height}px`);
+                petalLayer.appendChild(petal);
+
+                window.setTimeout(() => petal.remove(), 4700);
+            }
+        }
+        function closePopup() {
+            popup.classList.remove('open');
+            popup.setAttribute('aria-hidden', 'true');
+        }
+
+        document.querySelectorAll('.knowledge-card').forEach((card) => {
+            const toggle = card.querySelector('.card-toggle');
+            const title = toggle.querySelector('span')?.textContent?.trim() || '';
+            const contentHtml = card.querySelector('.card-content')?.innerHTML || '';
+            toggle.addEventListener('click', (e) => {
+                const rect = toggle.getBoundingClientRect();
+                const x = e?.clientX ?? rect.left + rect.width / 2;
+                const y = e?.clientY ?? rect.top + 6;
+                triggerPetalEffect(x, y);
+                openPopup(title, contentHtml);
+            });
+        });
+
+        popupClose.addEventListener('click', closePopup);
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) closePopup();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && popup.classList.contains('open')) closePopup();
+        });
+    </script>
+</body>
+</html>

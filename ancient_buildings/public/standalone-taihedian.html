@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>太和殿 GLB · 独立演示（非 SPA）</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body { margin: 0; padding: 20px; background: #0f172a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #e2e8f0; font-family: system-ui, sans-serif; }
+    h1 { font-size: 1.25rem; margin-bottom: 12px; }
+    p { font-size: 13px; opacity: 0.85; margin-bottom: 16px; max-width: 720px; text-align: center; }
+    model-viewer { width: 100%; max-width: 1200px; height: min(80vh, 800px); border-radius: 12px; background: #1a1a1a; }
+  </style>
+</head>
+<body>
+  <h1>故宫 · 太和殿（独立页）</h1>
+  <p>模型路径为站点根路径 <code>/taihedian.glb</code>，即 Vite 的 <code>public/taihedian.glb</code>。开发时访问本页：<code>/standalone-taihedian.html</code></p>
+  <model-viewer
+    src="/taihedian.glb"
+    alt="故宫太和殿 3D 模型"
+    camera-controls
+    auto-rotate
+    shadow-intensity="1"
+    environment-image="neutral"
+    exposure="1.2"
+  ></model-viewer>
+</body>
+</html>

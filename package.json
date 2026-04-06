@@ -1,0 +1,14 @@
+{
+  "name": "ancient-buildings",
+  "version": "1.0.0",
+  "private": true,
+  "description": "在子目录 ancient_buildings 中启动 Vite（入口 index.html 在该目录）",
+  "scripts": {
+    "dev": "npm --prefix ancient_buildings run dev",
+    "build": "npm --prefix ancient_buildings run build",
+    "preview": "npm --prefix ancient_buildings run preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

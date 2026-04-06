@@ -1,0 +1,8 @@
+1. 将 book.xlsx、person.xlsx、policy.xlsx 放在本目录（与脚本同级）。
+2. 安装依赖：python -m pip install -r requirements.txt
+3. 生成数据库：python build_database.py
+4. 输出文件：
+   - gujian_analytics.sqlite（SQLite 3，含表 books、persons、policies）
+   - public/data/gujian_books.json、gujian_persons.json、gujian_policies.json
+
+若尚未提供 Excel，运行脚本会自动生成带示例行的 book.xlsx、person.xlsx、policy.xlsx，你可直接编辑或替换为正式表格（首行必须为列名）后重新执行脚本覆盖数据库。

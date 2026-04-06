@@ -1,0 +1,6 @@
+@"
+{
+  "name": "ancient-buildings",
+  ...
+}
+"@ | Out-File -FilePath package.json -Encoding UTF8

@@ -1,0 +1,769 @@
+<!--
+游戏开始页面 - 主菜单界面（横屏模式）
+包含背景、标题、轮播字幕、跳动角色、开始提示和最佳记录
+
+:file: Game/templates/start.html
+:author: 大师
+:time: 2026-01-16
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>重生之我是徽州古建筑修复师</title>
+    <style>
+        :root {
+            --fog-paper: #eef2f6;
+            --graphite-ink: #1e2329;
+            --blueprint-blue: #6e7f90;
+            --slate-shadow: #2b3440;
+            --plaster-gray: #b8c0c8;
+            --timber-brown: #7a5a3e;
+            --ochre-leaf: #c6a15a;
+            --lacquer-red: #8c1f2d;
+            --patina-teal: #2f6f6a;
+            --border-main: rgba(30, 35, 41, 0.55);
+            --font-ui: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            --duration-fast: 120ms;
+            --ease-out: ease-out;
+            --shadow-card: 0 2px 0 rgba(30, 35, 41, 0.18);
+            --safe-area-top: env(safe-area-inset-top, 0px);
+            --safe-area-right: env(safe-area-inset-right, 0px);
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-area-left: env(safe-area-inset-left, 0px);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-ui);
+            background: var(--graphite-ink);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* 横屏提示 */
+        .rotate-hint {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 24px;
+            background: var(--graphite-ink);
+            color: var(--fog-paper);
+        }
+
+        .rotate-hint__icon {
+            width: 80px;
+            height: 80px;
+            border: 3px solid var(--fog-paper);
+            border-radius: 8px;
+            position: relative;
+            animation: rotate-phone 1.5s ease-in-out infinite;
+        }
+
+        .rotate-hint__icon::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--fog-paper);
+            border-radius: 4px;
+        }
+
+        @keyframes rotate-phone {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+        }
+
+        .rotate-hint__text {
+            font-size: 18px;
+            letter-spacing: 0.04em;
+        }
+
+        @media (orientation: portrait) and (max-width: 900px) {
+            .rotate-hint { display: flex; }
+            .game-container { display: none !important; }
+        }
+
+        /* 嵌入本站「小游戏」窄 iframe：视口常为竖向比例，勿隐藏主界面 */
+        body.hzh-embed .rotate-hint {
+            display: none !important;
+        }
+        body.hzh-embed .game-container {
+            display: flex !important;
+        }
+
+        /* 游戏容器 */
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--safe-area-top) var(--safe-area-right) var(--safe-area-bottom) var(--safe-area-left);
+        }
+
+        /* 背景层 */
+        .background-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .background-layer__image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6) saturate(0.7) contrast(0.9);
+        }
+
+        .background-layer__overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(43, 52, 64, 0.5) 0%, rgba(43, 52, 64, 0.2) 30%, rgba(43, 52, 64, 0.2) 70%, rgba(43, 52, 64, 0.5) 100%);
+            pointer-events: none;
+        }
+
+        .background-layer__grid {
+            position: absolute;
+            inset: 0;
+            opacity: 0.06;
+            background-image: linear-gradient(var(--blueprint-blue) 1px, transparent 1px), linear-gradient(90deg, var(--blueprint-blue) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+        /* 内容层 */
+        .content-layer {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px 48px;
+            gap: 48px;
+        }
+
+        /* 角色区域 */
+        .character-section {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .character-section__sprite {
+            width: auto;
+            height: clamp(380px, 50vh, 320px);
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            animation: character-float 2.4s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(30, 35, 41, 0.5));
+        }
+
+        @keyframes character-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* 信息区域 */
+        .info-section {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            max-width: 600px;
+            gap: 20px;
+        }
+
+        .title-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .title-section__main {
+            font-size: clamp(28px, 5vw, 56px);
+            font-weight: 600;
+            color: var(--fog-paper);
+            letter-spacing: 0.06em;
+            text-align: left;
+            line-height: 1.3;
+            text-shadow: 0 2px 0 rgba(30, 35, 41, 0.5);
+        }
+
+        .title-section__decoration {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .title-section__line {
+            width: 48px;
+            height: 2px;
+            background: var(--plaster-gray);
+            opacity: 0.6;
+        }
+
+        .title-section__mark {
+            width: 6px;
+            height: 6px;
+            background: transparent;
+            border: 1px solid var(--plaster-gray);
+            transform: rotate(45deg);
+        }
+
+        .subtitle-section {
+            margin: 8px 0;
+        }
+
+        .subtitle-section__text {
+            font-size: clamp(14px, 2.5vw, 22px);
+            color: var(--plaster-gray);
+            letter-spacing: 0.04em;
+            line-height: 1.6;
+            animation: subtitle-breathe 10s ease-in-out infinite;
+        }
+
+        @keyframes subtitle-breathe {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 0.4; }
+        }
+
+        .game-intro {
+            margin-top: 10px;
+            padding: 14px 16px;
+            width: 100%;
+            background: rgba(238, 242, 246, 0.06);
+            border: 1px solid rgba(238, 242, 246, 0.12);
+            border-radius: 12px;
+        }
+
+        .game-intro__title {
+            font-size: 14px;
+            color: var(--fog-paper);
+            margin-bottom: 8px;
+            letter-spacing: 0.06em;
+        }
+
+        .game-intro__text {
+            font-size: clamp(12px, 2vw, 16px);
+            color: var(--plaster-gray);
+            line-height: 1.6;
+        }
+
+        .start-prompt {
+            margin-top: 16px;
+        }
+
+        .start-prompt__text {
+            font-size: clamp(14px, 2vw, 20px);
+            color: var(--plaster-gray);
+            font-family: var(--font-mono);
+            letter-spacing: 0.08em;
+            animation: prompt-pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes prompt-pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 0.45; }
+        }
+
+        /* 声音提醒横幅 */
+        .sound-reminder {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--lacquer-red), #a02535);
+            color: var(--fog-paper);
+            text-align: center;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .sound-reminder--hidden {
+            display: none;
+        }
+
+        .sound-reminder__icon {
+            font-size: 20px;
+            animation: icon-shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes icon-shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .sound-reminder__text {
+            font-weight: 500;
+        }
+
+        .sound-reminder__button {
+            padding: 6px 16px;
+            font-size: 13px;
+            color: var(--lacquer-red);
+            background: var(--fog-paper);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.1s ease;
+        }
+
+        .sound-reminder__button:hover {
+            transform: scale(1.05);
+        }
+
+        .sound-reminder__button:active {
+            transform: scale(0.95);
+        }
+
+        /* 最佳记录按钮 */
+        .record-button {
+            position: absolute;
+            top: 20px;
+            right: calc(20px + var(--safe-area-right));
+            z-index: 10;
+            padding: 10px 18px;
+            font-size: 16px;
+            font-family: var(--font-ui);
+            color: var(--fog-paper);
+            background: var(--slate-shadow);
+            border: 1px solid var(--border-main);
+            cursor: pointer;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            box-shadow: var(--shadow-card);
+            transition: transform var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out);
+        }
+
+        .record-button:hover {
+            transform: translateY(-2px);
+            background: #3a4654;
+        }
+
+        /* 最佳记录弹窗 */
+        .record-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .record-modal--open {
+            display: flex;
+        }
+
+        .record-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(30, 35, 41, 0.85);
+        }
+
+        .record-modal__content {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            background: var(--slate-shadow);
+            border: 1px solid var(--border-main);
+            padding: 24px;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .record-modal__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .record-modal__title {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--fog-paper);
+        }
+
+        .record-modal__close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--fog-paper);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .record-modal__close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .record-modal__body {
+            color: var(--fog-paper);
+            text-align: center;
+        }
+
+        .record-best {
+            font-size: 48px;
+            font-family: var(--font-mono);
+            color: var(--ochre-leaf);
+            margin: 20px 0;
+        }
+
+        .record-label {
+            font-size: 14px;
+            color: var(--plaster-gray);
+        }
+
+        .record-empty {
+            font-size: 16px;
+            color: var(--plaster-gray);
+            padding: 32px 0;
+        }
+
+        /* 音量按钮 */
+        .sound-button {
+            position: absolute;
+            bottom: 16px;
+            right: calc(20px + var(--safe-area-right));
+            z-index: 10;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--slate-shadow);
+            border: 1px solid var(--border-main);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            transition: transform var(--duration-fast) var(--ease-out);
+            padding: 0;
+        }
+
+        .sound-button:hover {
+            transform: scale(1.1);
+        }
+
+        .sound-button__icon {
+            width: 68px;
+            height: 68px;
+            object-fit: contain;
+        }
+
+        .version-mark {
+            position: absolute;
+            bottom: 16px;
+            left: calc(20px + var(--safe-area-left));
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--plaster-gray);
+            opacity: 0.5;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .content-layer {
+                padding: 12px 32px;
+                gap: 32px;
+            }
+            .character-section__sprite {
+                height: clamp(180px, 45vh, 300px);
+            }
+            .title-section__main {
+                font-size: clamp(22px, 4vw, 36px);
+            }
+            .sound-reminder {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body{% if embed %} class="hzh-embed"{% endif %}>
+    <div class="rotate-hint">
+        <div class="rotate-hint__icon"></div>
+        <p class="rotate-hint__text">请旋转设备至横屏模式</p>
+    </div>
+
+    <div class="sound-reminder" data-role="sound-reminder">
+        <span class="sound-reminder__icon">🔔</span>
+        <span class="sound-reminder__text">建议开启声音以获得最佳游戏体验</span>
+        <button class="sound-reminder__button" data-action="enable-sound">开启声音</button>
+    </div>
+
+    <div class="game-container">
+        <div class="background-layer">
+            <img class="background-layer__image" src="/static/游戏背景.png" alt="" draggable="false">
+            <div class="background-layer__overlay"></div>
+            <div class="background-layer__grid"></div>
+        </div>
+
+        <button class="record-button" type="button" data-action="open-record">最佳记录</button>
+
+        <div class="content-layer">
+            <section class="character-section">
+                <img class="character-section__sprite" src="/static/主菜单人物-1.png" alt="主角" draggable="false">
+            </section>
+
+            <section class="info-section">
+                <div class="title-section">
+                    <h1 class="title-section__main">重生之<br>我是徽州古建筑<br>修复师</h1>
+                    <div class="title-section__decoration">
+                        <span class="title-section__line"></span>
+                        <span class="title-section__mark"></span>
+                        <span class="title-section__line"></span>
+                    </div>
+                </div>
+
+                <div class="subtitle-section">
+                    <p class="subtitle-section__text" data-role="subtitle">穿越数字荒原，修复古村落记忆链路，唤醒墨香徽州</p>
+                </div>
+
+                <div class="game-intro" data-role="game-intro">
+                    <div class="game-intro__title">游戏介绍</div>
+                    <p class="game-intro__text">游戏背景：大模型占领世界，数字荒原断层重现，你要在古村落中修复结构记忆，唤醒徽州文脉。</p>
+                    <p class="game-intro__text">游戏目标：逐关完成修复校准，集齐三件魂器，点亮“徽州之魂”。</p>
+
+                </div>
+
+                <div class="start-prompt">
+                    <p class="start-prompt__text">点击屏幕开始游戏</p>
+                </div>
+            </section>
+        </div>
+
+        <button class="sound-button" type="button" data-action="toggle-sound">
+            <img class="sound-button__icon" data-role="sound-icon" src="/static/声音关闭图标.png" alt="声音">
+        </button>
+        <span class="version-mark">v1.0.0</span>
+
+        <div class="record-modal" data-role="record-modal">
+            <div class="record-modal__backdrop" data-action="close-record"></div>
+            <div class="record-modal__content">
+                <header class="record-modal__header">
+                    <h2 class="record-modal__title">最佳记录</h2>
+                    <button class="record-modal__close" type="button" data-action="close-record">✕</button>
+                </header>
+                <div class="record-modal__body" data-role="record-body"></div>
+            </div>
+        </div>
+
+        <audio data-role="bgm" loop preload="auto">
+            <source src="/static/主题曲.wav" type="audio/wav">
+        </audio>
+    </div>
+
+    <script>
+        // @ts-check
+        (() => {
+            "use strict";
+
+            const SUBTITLES = [
+                "修复数字时代的文化遗忘，重连古村记忆链路",
+                "数据断层蔓延，修复徽派建筑与古村落，唤醒地方文脉",
+                "认知迷雾笼罩街巷，你必须逐关修复历史语境",
+                "南屏古村、呈坎八卦村、棠樾牌坊群，三处遗存等你修复",
+                "三处古村遗存，三件文化信物，集齐才能唤醒徽州文化之魂",
+                "当徽州文化之魂苏醒，人们才有机会重建文化认同"
+            ];
+
+            /** @type {HTMLParagraphElement | null} */
+            const subtitleEl = document.querySelector('[data-role="subtitle"]');
+            /** @type {HTMLElement | null} */
+            const recordModal = document.querySelector('[data-role="record-modal"]');
+            /** @type {HTMLElement | null} */
+            const recordBody = document.querySelector('[data-role="record-body"]');
+            /** @type {HTMLElement | null} */
+            const soundReminder = document.querySelector('[data-role="sound-reminder"]');
+            /** @type {HTMLAudioElement | null} */
+            const bgmAudio = document.querySelector('[data-role="bgm"]');
+            /** @type {HTMLImageElement | null} */
+            const soundIcon = document.querySelector('[data-role="sound-icon"]');
+
+            let hasTriggeredStart = false;
+            let bgmStarted = false;
+            let bestRecord = null;
+
+            try {
+                /** @type {string} */
+                const rawData = String('{{ best_record|safe }}');
+                bestRecord = rawData && rawData !== 'null' && rawData !== 'None' ? JSON.parse(rawData) : null;
+            } catch (e) {
+                bestRecord = null;
+            }
+
+            function initSubtitleRotation() {
+                setInterval(() => {
+                    const idx = Math.floor(Math.random() * SUBTITLES.length);
+                    if (subtitleEl) subtitleEl.textContent = SUBTITLES[idx];
+                }, 10000);
+            }
+
+            function formatDuration(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+
+            function renderBestRecord() {
+                if (!recordBody) return;
+                if (bestRecord && typeof bestRecord === 'object' && 'duration' in bestRecord && Number(bestRecord.duration)) {
+                    recordBody.innerHTML = `
+                        <p class="record-label">最快通关时间</p>
+                        <div class="record-best">${formatDuration(Number(bestRecord.duration))}</div>
+                        <p class="record-label">挑战自己，再创纪录！</p>
+                    `;
+                } else {
+                    recordBody.innerHTML = '<p class="record-empty">暂无通关记录<br>完成游戏后将记录最佳成绩</p>';
+                }
+            }
+
+            function startGame() {
+                if (hasTriggeredStart) return;
+                hasTriggeredStart = true;
+                try {
+                    window.parent.postMessage(
+                        { source: 'huizhou-game-v1', type: 'HZH_GAME_START_FULLSCREEN' },
+                        '*'
+                    );
+                } catch (e) {
+                    /* 非嵌入打开时无 parent */
+                }
+                window.location.href = '/main/';
+            }
+
+            function toggleSound() {
+                if (!bgmAudio) return;
+                if (!bgmStarted || bgmAudio.paused) {
+                    bgmAudio.volume = 0.6;
+                    bgmAudio.play().then(() => {
+                        bgmStarted = true;
+                        updateSoundButton(true);
+                        hideSoundReminder();
+                    }).catch(() => {});
+                } else {
+                    bgmAudio.pause();
+                    updateSoundButton(false);
+                }
+            }
+
+            function updateSoundButton(isPlaying) {
+                if (!soundIcon) return;
+                soundIcon.src = isPlaying ? '/static/声音开启图标.png' : '/static/声音关闭图标.png';
+            }
+
+            function hideSoundReminder() {
+                if (!soundReminder) return;
+                soundReminder.classList.add('sound-reminder--hidden');
+            }
+
+            function handleClick(event) {
+                const target = event.target;
+                if (!(target instanceof HTMLElement)) return;
+                const actionEl = target.closest('[data-action]');
+                const action = actionEl?.getAttribute('data-action');
+
+                switch (action) {
+                    case 'open-record':
+                        renderBestRecord();
+                        if (recordModal) recordModal.classList.add('record-modal--open');
+                        return;
+                    case 'close-record':
+                        if (recordModal) recordModal.classList.remove('record-modal--open');
+                        return;
+                    case 'toggle-sound':
+                        toggleSound();
+                        return;
+                    case 'enable-sound':
+                        toggleSound();
+                        return;
+                }
+
+                if (recordModal?.classList.contains('record-modal--open')) return;
+                if (target.closest('[data-role="game-intro"]')) return;
+                if (!target.closest('button')) {
+                    startGame();
+                }
+            }
+
+            function handleKeyDown(event) {
+                if (recordModal?.classList.contains('record-modal--open')) {
+                    if (event.key === 'Escape') {
+                        if (recordModal) recordModal.classList.remove('record-modal--open');
+                    }
+                    return;
+                }
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    startGame();
+                }
+            }
+
+            function init() {
+                initSubtitleRotation();
+                document.addEventListener('click', handleClick);
+                document.addEventListener('keydown', handleKeyDown);
+
+                if (bgmAudio) {
+                    bgmAudio.volume = 0.6;
+                    bgmAudio.play().then(() => {
+                        bgmStarted = true;
+                        updateSoundButton(true);
+                        hideSoundReminder();
+                    }).catch(() => {
+                        updateSoundButton(false);
+                    });
+                } else {
+                    updateSoundButton(false);
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+</html>
