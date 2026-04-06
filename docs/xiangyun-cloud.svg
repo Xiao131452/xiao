@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 176" aria-hidden="true">
+  <defs>
+    <linearGradient id="xiangyunWhite" x1="5%" y1="8%" x2="95%" y2="92%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="38%" stop-color="#f6f8fc"/>
+      <stop offset="100%" stop-color="#dfe6f0"/>
+    </linearGradient>
+  </defs>
+  <!-- ??????? -->
+  <path
+    fill="rgba(203, 213, 225, 0.55)"
+    d="M 36 108
+       C 16 102 12 80 36 68
+       C 48 46 88 38 128 50
+       C 152 30 198 26 242 46
+       C 272 34 318 42 352 66
+       C 392 58 432 82 428 112
+       C 422 132 382 130 342 120
+       C 298 138 242 132 188 124
+       C 132 134 72 126 40 110
+       C 32 108 36 108 36 108 Z"
+  />
+  <!-- ????????????? -->
+  <path
+    fill="url(#xiangyunWhite)"
+    stroke="rgba(148, 163, 184, 0.4)"
+    stroke-width="0.9"
+    d="M 28 98
+       C 12 92 8 70 32 56
+       C 46 34 86 26 128 40
+       C 154 18 204 14 250 36
+       C 282 22 328 30 364 56
+       C 404 50 438 78 432 108
+       C 426 128 386 126 346 116
+       C 302 132 246 126 192 118
+       C 136 128 78 120 44 104
+       C 32 102 28 100 28 98 Z"
+  />
+</svg>

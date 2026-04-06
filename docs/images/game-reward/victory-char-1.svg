@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 320" fill="none">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5e6c8"/>
+      <stop offset="50%" style="stop-color:#d4a574"/>
+      <stop offset="100%" style="stop-color:#8b5a2b"/>
+    </linearGradient>
+    <linearGradient id="robe1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#5c4033"/>
+      <stop offset="100%" style="stop-color:#2d1f18"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="100" cy="288" rx="72" ry="14" fill="rgba(0,0,0,0.25)"/>
+  <path d="M55 120 Q100 95 145 120 L138 260 Q100 275 62 260 Z" fill="url(#robe1)" stroke="#c9a227" stroke-width="1.2"/>
+  <path d="M78 125 L100 200 L122 125" stroke="#a67c52" stroke-width="2" fill="none"/>
+  <circle cx="100" cy="78" r="38" fill="url(#g1)" stroke="#8b6914" stroke-width="1.5"/>
+  <path d="M68 58 Q100 38 132 58 L128 48 Q100 28 72 48 Z" fill="#4a3528"/>
+  <rect x="88" y="42" width="24" height="10" rx="2" fill="#c9a227"/>
+  <ellipse cx="85" cy="78" rx="5" ry="7" fill="#fff"/>
+  <ellipse cx="115" cy="78" rx="5" ry="7" fill="#fff"/>
+  <circle cx="85" cy="80" r="2.5" fill="#2d1f18"/>
+  <circle cx="115" cy="80" r="2.5" fill="#2d1f18"/>
+  <path d="M92 98 Q100 104 108 98" stroke="#2d1f18" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M95 102 Q100 108 105 102" fill="#8b4513" opacity="0.4"/>
+  <rect x="125" y="155" width="42" height="8" rx="2" fill="#8b7355" transform="rotate(-25 125 155)"/>
+  <rect x="128" y="158" width="38" height="5" rx="1" fill="#c9a227" transform="rotate(-25 128 158)"/>
+</svg>
