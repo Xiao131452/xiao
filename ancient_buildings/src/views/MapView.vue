@@ -20,6 +20,14 @@
         <span class="tab-icon">{{ tab.icon }}</span>
         <span class="tab-label">{{ tab.label }}</span>
       </button>
+      <button
+        v-if="currentTab === 'map' && timelineReturnState.available"
+        class="timeline-return-btn"
+        type="button"
+        @click="backToTimelineOrigin"
+      >
+        ↩ 返回天下名迹原位置
+      </button>
     </div>
 
     <GameCollectibleCards :visible="currentTab === 'game'" />
@@ -330,7 +338,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import BuildingMap3D from '../components/map/BuildingMap3D.vue'
 import MapDashboardCharts from '../components/map/MapDashboardCharts.vue'
 import FloatingFilterPanel from '../components/map/FloatingFilterPanel.vue'
@@ -362,6 +370,10 @@ const filters = ref({
 const currentTab = ref('map')
 const mapRefreshKey = ref(0)
 const chatWindowRef = ref(null)
+const timelineReturnState = ref({
+  available: false,
+  scrollY: 0,
+})
 
 const buildingTypes = ['宫殿', '民居', '塔', '桥梁', '园林', '祠庙', '陵墓', '寺庙', '石窟', '道教建筑', '佛教建筑', '水利工程']
 
@@ -511,6 +523,55 @@ const isClassicBuilding = (name) => {
   return classicBuildings.includes(name)
 }
 
+const dynastyOrder = {
+  秦: 1,
+  汉: 2,
+  三国: 3,
+  晋: 4,
+  南北朝: 5,
+  隋: 6,
+  唐: 7,
+  五代: 8,
+  辽: 9,
+  宋: 10,
+  金: 11,
+  元: 12,
+  明: 13,
+  清: 14,
+  民国: 15
+}
+
+const isWorldHeritageBuilding = (building) => {
+  const hs = Array.isArray(building?.heritage_status) ? building.heritage_status : []
+  return hs.some((s) => String(s).includes('世界文化遗产'))
+}
+
+const isKeyProtectedBuilding = (building) => {
+  const hs = Array.isArray(building?.heritage_status) ? building.heritage_status : []
+  const bt = String(building?.building_type || '')
+  return hs.some((s) => /全国重点文物保护单位|重点文物/.test(String(s))) || /全国重点文物保护单位|重点文物/.test(bt)
+}
+
+const isUnknownDynastyBuilding = (building) => {
+  return normalizeDynastyName(building?.dynasty) === ''
+}
+
+const isOtherTypeBuilding = (building) => {
+  const txt = `${building?.type || ''} ${building?.building_type || ''}`
+  return /(其他|其它|未知|不详|未分类|无类型|待定)/.test(txt)
+}
+
+const getProvinceBuildingRank = (building) => {
+  // 朝代不明/形制“其他”统一压到列表末尾
+  if (isUnknownDynastyBuilding(building) || isOtherTypeBuilding(building)) return 3
+  // 世界文化遗产优先
+  if (isWorldHeritageBuilding(building)) return 0
+  // 重点文物与经典名迹次优先
+  if (isKeyProtectedBuilding(building) || isClassicBuilding(building?.name)) return 1
+  // 其余正常项
+  return 2
+}
+
 const pageTabs = ref([
   { id: 'animation', label: '绘影丹楹', icon: '🎬' },
   { id: 'map', label: '舆图寻迹', icon: '🗺️' },
@@ -535,9 +596,20 @@ const filteredBuildings = computed(() => {
 })
 
 const provinceBuildings = computed(() => {
-  return filteredBuildings.value.filter(building => 
-    normalizeProvinceName(building.province) === selectedProvince.value
-  )
+  return filteredBuildings.value
+    .filter(building =>
+      normalizeProvinceName(building.province) === selectedProvince.value
+    )
+    .sort((a, b) => {
+      const rankDiff = getProvinceBuildingRank(a) - getProvinceBuildingRank(b)
+      if (rankDiff !== 0) return rankDiff
+
+      const da = dynastyOrder[normalizeDynastyName(a?.dynasty)] || 999
+      const db = dynastyOrder[normalizeDynastyName(b?.dynasty)] || 999
+      if (da !== db) return da - db
+
+      return String(a?.name || '').localeCompare(String(b?.name || ''), 'zh-Hans-CN')
+    })
 })
 
 const totalBuildings = computed(() => buildings.value.length)
@@ -566,6 +638,10 @@ const onDashboardProvinceSelect = (province) => {
 }
 
 const onTimelineGoMap = (building) => {
+  timelineReturnState.value = {
+    available: true,
+    scrollY: window.scrollY || document.documentElement.scrollTop || 0,
+  }
   if (currentTab.value !== 'map') mapRefreshKey.value += 1
   currentTab.value = 'map'
   filters.value = {
@@ -576,6 +652,14 @@ const onTimelineGoMap = (building) => {
   const p = normalizeProvinceName(building.province)
   selectedProvince.value = p || 'china'
   selectedBuilding.value = building
+}
+
+const backToTimelineOrigin = async () => {
+  const y = timelineReturnState.value.scrollY || 0
+  currentTab.value = 'timeline'
+  selectedBuilding.value = null
+  await nextTick()
+  window.scrollTo({ top: y, behavior: 'smooth' })
 }
 
 const onTimelineAiChat = (building) => {
@@ -926,6 +1010,24 @@ onUnmounted(() => {
 .page-tabs button.active {
   transform: translateY(-2px);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.timeline-return-btn {
+  margin-left: 6px;
+  padding: 8px 12px;
+  border: 1px solid #ccbfa9;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f6f0e2 0%, #eadfc8 100%);
+  color: #6f4e37;
+  cursor: pointer;
+  font-size: 0.84rem;
+  transition: all 0.2s ease;
+}
+
+.timeline-return-btn:hover {
+  transform: translateY(-1px);
+  border-color: #b8a384;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
 }
 
 /* 1. 绘影丹楹 🎬 */

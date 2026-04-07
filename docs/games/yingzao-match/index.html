@@ -16,6 +16,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             background-color: #3d2e24;
             /* 与主站 public/images/game-yingzao-bg.jpg 同源（由 game1/ph.jpg 提供） */
             background-image:
@@ -107,11 +108,16 @@
             display: none;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            width: fit-content;
+            min-height: calc(100vh - 40px);
+            margin-left: clamp(8px, 4.5vw, 80px);
+            margin-right: clamp(16px, 4vw, 90px);
         }
         #info-panel {
             display: flex;
             justify-content: space-between;
-            width: 400px;
+            width: 340px;
             margin-bottom: 15px;
             font-size: 18px;
             font-weight: bold;
@@ -121,7 +127,7 @@
             border-radius: 8px;
         }
         #target-panel {
-            width: 400px;
+            width: 340px;
             background: #a0522d;
             color: #f4e8d3;
             padding: 10px;
@@ -144,7 +150,7 @@
 
         /* 单个建材方块样式 */
         .cell {
-            width: 55px; height: 55px;
+            width: 60px; height: 60px;
             background: linear-gradient(135deg, #deb887 0%, #c4a068 100%);
             display: flex;
             justify-content: center;
@@ -360,6 +366,15 @@
             margin-right: 8px;
         }
 
+        /* 大屏时让消消乐主体偏右，给左侧知识库留出空间 */
+        @media (max-width: 1280px), (max-height: 760px) {
+            #game-container {
+                min-height: auto;
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+
         /* 地图页 iframe（?embed=1）：铺满槽位、压缩边距与棋盘格 */
         html.embed-slot,
         html.embed-slot body {
@@ -401,7 +416,7 @@
         }
         html.embed-slot #info-panel,
         html.embed-slot #target-panel {
-            width: 100%;
+            width: min(340px, 100%);
             max-width: 100%;
             box-sizing: border-box;
         }
@@ -428,8 +443,8 @@
             box-sizing: border-box;
         }
         html.embed-slot .cell {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             font-size: 26px;
         }
         html.embed-slot .cell.stone-lion::after {
@@ -462,8 +477,8 @@
         /* 父页全屏后 iframe 变大：棋盘恢复更接近完整版尺寸 */
         @media (min-width: 720px) and (min-height: 560px) {
             html.embed-slot .cell {
-                width: 52px;
-                height: 52px;
+                width: 56px;
+                height: 56px;
                 font-size: 32px;
             }
             html.embed-slot .cell.stone-lion::after {

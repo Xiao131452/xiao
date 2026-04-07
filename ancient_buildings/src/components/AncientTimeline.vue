@@ -141,6 +141,7 @@
               <img
                 :src="detailGallery[detailImageIndex]"
                 :alt="`${selectedBuilding.name} 图 ${detailImageIndex + 1}/${detailGallery.length}`"
+                class="detail-gallery-image"
               />
               <template v-if="detailGallery.length > 1">
                 <button type="button" class="detail-gallery-nav detail-gallery-nav--prev" aria-label="上一张" @click="detailPrev">
@@ -1078,13 +1079,20 @@ onUnmounted(() => {
 
 .detail-card {
   background: white;
-  border-radius: 20px;
-  max-width: 600px;
+  border-radius: 16px;
+  max-width: 380px;
   width: 100%;
-  max-height: 80vh;
+  max-height: 78vh;
   overflow-y: auto;
   position: relative;
   animation: slideUp 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.detail-card::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 @keyframes slideUp {
@@ -1100,28 +1108,29 @@ onUnmounted(() => {
 
 .close-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 40px;
-  height: 40px;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: #f3f4f6;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: 1rem;
   color: #666;
   cursor: pointer;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
 
 .close-btn:hover {
-  background: white;
-  transform: rotate(90deg);
+  background: #e5e7eb;
+  color: #333;
+  transform: none;
 }
 
 .detail-gallery {
-  border-radius: 20px 20px 0 0;
+  border-radius: 16px 16px 0 0;
   overflow: hidden;
   background: #0f172a;
 }
@@ -1129,14 +1138,27 @@ onUnmounted(() => {
 .detail-gallery-viewport {
   position: relative;
   width: 100%;
-  height: 250px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.detail-gallery-viewport img {
+.detail-gallery-viewport::before {
+  content: none;
+}
+
+.detail-gallery-viewport::after {
+  content: none;
+}
+
+.detail-gallery-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  image-rendering: auto;
 }
 
 .detail-gallery-nav {
@@ -1224,7 +1246,7 @@ onUnmounted(() => {
 }
 
 .detail-content {
-  padding: 24px;
+  padding: 16px;
 }
 
 .detail-header {
@@ -1235,9 +1257,9 @@ onUnmounted(() => {
 
 .detail-year,
 .detail-dynasty {
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 15px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -1252,23 +1274,23 @@ onUnmounted(() => {
 }
 
 .detail-name {
-  font-size: 28px;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #333;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
 }
 
 .detail-tags {
   display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
 .detail-tag {
-  padding: 6px 14px;
+  padding: 5px 10px;
   border-radius: 15px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   background: #e8f5e9;
   color: #333;
@@ -1278,16 +1300,16 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   color: #666;
-  font-size: 15px;
+  font-size: 0.85rem;
 }
 
 .detail-description {
   color: #666;
-  line-height: 1.8;
+  line-height: 1.5;
   margin: 0;
-  font-size: 15px;
+  font-size: 0.85rem;
 }
 
 .fade-enter-active,
@@ -1301,6 +1323,10 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .detail-gallery-viewport {
+    height: 180px;
+  }
+
   .heritage-intro-card {
     margin-top: 16px;
     padding: 14px 14px 12px;

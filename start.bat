@@ -38,7 +38,7 @@ timeout /t 8 /nobreak >nul
 echo.
 echo [Done] Opening browser...
 echo Note: Please keep the black command windows open!
-start http://localhost:3000
+echo Browser will be opened by Vite once.
 
 echo.
 echo ==================================================
